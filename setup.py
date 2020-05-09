@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.1",
     author="David Kershaw",
     author_email="dk107dk@hotmail.com",
-    description="Cdocs is a contextual help library",
+    description="Cdocs is a super simple contextual help library",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/dk107dk/cdocs",

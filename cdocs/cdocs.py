@@ -18,12 +18,13 @@ class ComposeDocException(Exception):
 
 
 class Cdocs(ContextualDocs):
-    def __init__(self):
-        self._docs_path = Config.get("docs", "public")
-        self._internal_path = Config.get("docs", "internal")
-        self._ext = Config.get("formats", "ext")
-        self._tokens_filename = Config.get("filenames", "tokens")
-        self._labels_filename = Config.get("filenames", "labels")
+    def __init__(self, configpath:Optional[str]=None):
+        cfg = Config(configpath)
+        self._docs_path = cfg.get("docs", "public")
+        self._internal_path = cfg.get("docs", "internal")
+        self._ext = cfg.get("formats", "ext")
+        self._tokens_filename = cfg.get("filenames", "tokens")
+        self._labels_filename = cfg.get("filenames", "labels")
 
     def get_doc_root(self) -> str:
         return self._docs_path
