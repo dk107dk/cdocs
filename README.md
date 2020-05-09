@@ -12,19 +12,21 @@ Docs are stored in two directory trees: public and internal. The public tree is 
 Use a *config.ini* to set the documentation root directory, file extension, etc.  The contents should be similar to this:
 
 > [docs]
-> public = /Users/davidkershaw/dev/cdocs/docs/example
 >
+> public = /Users/davidkershaw/dev/cdocs/docs/example
 > internal = /Users/davidkershaw/dev/cdocs/docs/internal
 >
 > [defaults]
+>
 > notfound = [internal]/404
 >
 > [formats]
+>
 > ext = xml
 >
 > [filenames]
-> tokens = tokens.json
 >
+> tokens = tokens.json
 > labels = labels.json
 
 
