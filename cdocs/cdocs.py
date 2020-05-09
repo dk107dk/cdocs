@@ -43,7 +43,6 @@ class Cdocs(ContextualDocs):
             raise DocNotFoundException("path can not be None")
         if path.find('.html') == -1 and path.find('.md') == -1 and path.find('.xml') == -1:
             raise BadDocPath("file at path must be .html, .md or .xml")
-        print(f"print concat docs: path is {path}")
         docpath = self._get_full_doc_path(path)
         try:
             content = self._read_doc(docpath)
