@@ -14,10 +14,13 @@ Use a *config.ini* to set the documentation root directory, file extension, etc.
 > [docs]
 > public = /Users/davidkershaw/dev/cdocs/docs/example
 > internal = /Users/davidkershaw/dev/cdocs/docs/internal
+>
 > [defaults]
 > notfound = [internal]/404
+>
 > [formats]
 > ext = xml
+>
 > [filenames]
 > tokens = tokens.json
 > labels = labels.json
