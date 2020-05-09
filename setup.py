@@ -11,7 +11,7 @@ setuptools.setup(
     description="Cdocs is a contextual help library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/dk107dk/cdocs",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
