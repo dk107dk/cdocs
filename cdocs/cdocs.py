@@ -23,12 +23,10 @@ class Cdocs(ContextualDocs):
         cfg = Config(configpath)
         self._docs_path = cfg.get("docs", "public")
         self._internal_path = cfg.get("docs", "internal")
-        self._ext = cfg.get("formats", "ext")
-        self._tokens_filename = cfg.get("filenames", "tokens")
-        self._labels_filename = cfg.get("filenames", "labels")
-        self._hashmark = cfg.get("filenames", "hashmark")
-        if self._hashmark is None:
-            self._hashmark = '#'
+        self._ext = cfg.get_with_default("formats", "ext", "xml")
+        self._tokens_filename = cfg.get_with_default("filenames", "tokens", "tokens.json")
+        self._labels_filename = cfg.get_with_default("filenames", "labels", "labels.json")
+        self._hashmark = cfg.get_with_default("filenames", "hashmark", "#")
 
     def get_doc_root(self) -> str:
         return self._docs_path

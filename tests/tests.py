@@ -1,8 +1,15 @@
 from cdocs.cdocs import Cdocs, DocNotFoundException, BadDocPath
+from cdocs.config import Config
 import unittest
 import os
 
 class FirstTests(unittest.TestCase):
+
+    def test_get_with_default(self):
+        cfg = Config()
+        oh = cfg.get_with_default("fish", "bats", "yeah!")
+        print(f"oh {oh}")
+        self.assertEqual( oh, "yeah!", msg="must equal the default value" )
 
     def test_get_doc_root_path(self):
         cdocs = Cdocs()
