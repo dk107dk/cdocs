@@ -1,3 +1,5 @@
 {
-        "team":"my team"
+        "team":"my team",
+        "company":"{{company}}",
+        "my app name":"my app's name is {{app}}"
 }

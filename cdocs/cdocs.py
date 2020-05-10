@@ -1,7 +1,7 @@
 import os
 import json
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict
 from jinja2 import Template
 from cdocs.config import Config
 from cdocs.contextual_docs import ContextualDocs
@@ -39,7 +39,8 @@ class Cdocs(ContextualDocs):
         return self._get_dict(path, self._tokens_filename)
 
     def get_labels(self, path:str) -> dict:
-        return self._get_dict(path, self._labels_filename)
+        labels = self._get_dict(path, self._labels_filename)
+        return self._transform_labels(path, labels)
 
     def get_compose_doc(self, path:str) -> str:
         if path is None :
@@ -50,9 +51,7 @@ class Cdocs(ContextualDocs):
         try:
             content = self._read_doc(docpath)
             tokens:dict = self.get_tokens(path[0:path.rindex('/')])
-            tokens["get_doc"] = self.get_doc
-            template = Template(content)
-            content = template.render(tokens)
+            content = self._transform(content, path, tokens)
             return content
         except Exception as e:
             print(f"cannot compose {path}: {e}")
@@ -68,16 +67,6 @@ class Cdocs(ContextualDocs):
             raise DocNotFoundException(f'No concat instruction file at {path}')
         return self._concat( paths)
 
-    def _concat(self, paths:str) -> str:
-        result = ''
-        for apath in paths:
-            if apath.strip() == '':
-                pass
-            else:
-                doc = self.get_doc(apath)
-                result += '\n' + doc
-        return result
-
     def get_doc(self, path:str) -> str:
         if path is None :
             raise DocNotFoundException("path can not be None")
@@ -89,11 +78,35 @@ class Cdocs(ContextualDocs):
             path = path[0:plus]
         docpath = self._get_full_doc_path(path)
         content = self._read_doc(docpath)
-        content = self._transform(path, content)
+        content = self._transform(content, path, None)
         if len(pluspaths) > 0:
             for apath in pluspaths:
                 content += " " + self.get_doc(apath)
         return content
+
+    def _transform_labels(self, path:str, labels:Dict[str,str]) -> Dict[str,str]:
+        tokens:dict = self.get_tokens(path)
+        return { k:self._transform(v, path, tokens) for k,v in labels.items() }
+
+    def _transform(self, content:str, path:Optional[str]=None, tokens:Optional[Dict[str,str]]=None) -> str:
+        if tokens is None and path is None:
+            print(f"Warning: _transform with no path and no tokens")
+            tokens = []
+        if tokens is None:
+            tokens:dict = self.get_tokens(path)
+        tokens["get_doc"] = self.get_doc
+        template = Template(content)
+        return template.render(tokens)
+
+    def _concat(self, paths:str) -> str:
+        result = ''
+        for apath in paths:
+            if apath.strip() == '':
+                pass
+            else:
+                doc = self.get_doc(apath)
+                result += '\n' + doc
+        return result
 
     def _get_plus_paths( self, path:str) -> List[str]:
         lines = path.split(self._plus)
@@ -132,12 +145,6 @@ class Cdocs(ContextualDocs):
         if hashmark > -1:
             filename = path[hashmark+1:]
         return filename
-
-    def _transform(self, path:str, content:str) -> str:
-        tokens:dict = self.get_tokens(path)
-        template = Template(content)
-        content = template.render(tokens)
-        return content
 
     def _get_dict(self, path:str, filename:str) -> dict:
         path = path.strip('/\\')

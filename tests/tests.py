@@ -78,9 +78,13 @@ class FirstTests(unittest.TestCase):
         docpath = "/app/home/teams/todos/assignee"
         cdocs = Cdocs()
         labels = cdocs.get_labels(docpath)
-        print(f"labels: {labels}")
+        print(f"test_get_labels: the labels are: {labels}")
         self.assertIn("app", labels, msg=f"labels at {docpath} must include key 'app'")
         self.assertIn("team", labels, msg=f"labels at {docpath} must include key 'team'")
+        self.assertIn("my app name", labels, msg=f"labels at {docpath} must include key 'team'")
+        self.assertEqual("my app's name is fruit", labels["my app name"], msg=f"label my app name must == my app's name is fruit")
+        self.assertEqual("starstruck", labels["company"], msg=f"label company must == starstruck")
+
 
     def test_get_filename(self):
         docpath = "/app/home/teams/todos/assignee#new_assignee"
