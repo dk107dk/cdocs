@@ -32,6 +32,38 @@ class FirstTests(unittest.TestCase):
         print(f"txt is: {txt}")
         self.assertEqual("assignee in company starstruck!", txt)
 
+
+    def test_get_plus_paths(self):
+        docpath = "/app/home/teams/todos/assignee+edit_assignee"
+        cdocs = Cdocs()
+        paths = cdocs._get_plus_paths(docpath)
+        print(f"plus paths: {paths}")
+        self.assertIn("/app/home/teams/todos/assignee#edit_assignee", paths, msg=f"1. plus paths must include edit_assignee")
+
+        docpath = "/app/home/teams/todos/assignee#new_assignee+edit_assignee"
+        paths = cdocs._get_plus_paths(docpath)
+        print(f"plus paths: {paths}")
+        self.assertIn("/app/home/teams/todos/assignee#edit_assignee", paths, msg=f"2. plus paths must include edit_assignee")
+
+        docpath = "/app/home/teams/todos/assignee+new_assignee+edit_assignee"
+        paths = cdocs._get_plus_paths(docpath)
+        print(f"plus paths: {paths}")
+        self.assertIn("/app/home/teams/todos/assignee#edit_assignee", paths, msg=f"3. plus paths must include edit_assignee")
+        self.assertIn("/app/home/teams/todos/assignee#new_assignee", paths, msg=f"4. plus paths must include new_assignee")
+
+    def test_get_doc_with_plus_path(self):
+        docpath = "/app/home/teams/todos/assignee+new_assignee+edit_assignee"
+        cdocs = Cdocs()
+        doc = cdocs.get_doc(docpath)
+        print(f"content of {docpath} is: {doc}")
+        na = doc.find("new assignee")
+        ea = doc.find("edit assignee")
+        a = doc.find("assignee in company")
+        self.assertNotEqual(-1, na, msg=f'must include "new assignee" in {doc}')
+        self.assertNotEqual(-1, ea, msg=f'must include "edit assignee" in {doc}')
+        self.assertNotEqual(-1, a, msg=f'must include "assignee in company" in {doc}')
+
+
     def test_get_tokens(self):
         docpath = "/app/home/teams/todos/assignee"
         cdocs = Cdocs()

@@ -27,6 +27,7 @@ class Cdocs(ContextualDocs):
         self._tokens_filename = cfg.get_with_default("filenames", "tokens", "tokens.json")
         self._labels_filename = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark = cfg.get_with_default("filenames", "hashmark", "#")
+        self._plus = cfg.get_with_default("filenames", "plus", "+")
 
     def get_doc_root(self) -> str:
         return self._docs_path
@@ -65,6 +66,9 @@ class Cdocs(ContextualDocs):
         paths = self._get_concat_paths(path)
         if paths is None:
             raise DocNotFoundException(f'No concat instruction file at {path}')
+        return self._concat( paths)
+
+    def _concat(self, paths:str) -> str:
         result = ''
         for apath in paths:
             if apath.strip() == '':
@@ -79,10 +83,31 @@ class Cdocs(ContextualDocs):
             raise DocNotFoundException("path can not be None")
         if path.find('.') > -1:
             raise BadDocPath("dots are not allowed in doc paths")
+        pluspaths = self._get_plus_paths(path)
+        if len(pluspaths) > 0:
+            plus = path.find(self._plus)
+            path = path[0:plus]
         docpath = self._get_full_doc_path(path)
         content = self._read_doc(docpath)
         content = self._transform(path, content)
+        if len(pluspaths) > 0:
+            for apath in pluspaths:
+                content += " " + self.get_doc(apath)
         return content
+
+    def _get_plus_paths( self, path:str) -> List[str]:
+        lines = path.split(self._plus)
+        if len(lines) == 0:
+            return lines
+        first = lines[0]
+        lines = lines[1:]
+        mark = first.find(self._hashmark)
+        if mark > -1:
+            first = first[0:mark+1]
+        else:
+            first += self._hashmark
+        lines = [ first+line for line in lines]
+        return lines
 
     def _get_concat_paths(self, path:str) -> Optional[List[str]]:
         docpath = self._get_full_doc_path(path)

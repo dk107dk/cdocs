@@ -33,9 +33,9 @@ Use a *config.ini* to set the documentation root directory, file extension, etc.
 
 
 Cdocs has several ways of getting content:
-- **get_doc**: docs at paths like */x/y/z* with the physical file being at *[root]/x/y/z.[ext]*. This is the "default" doc for the path. The result text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the root, and the same from the same directory under the internal tree.
+- **get_doc**: docs at paths like */x/y/z* with the physical file being at *[root]/x/y/z.[ext]*. This is the "default" doc for the path. The result text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree. Paths may not have periods in them. You may use '+' (or the config value at [filenames][plus]) to concat docs on the fly. For e.g. /x/y/z#name+new_name+edit_name would return the doc at /x/y/z/name.xml + /x/y/z/new_name.xml + /x/y/z/edit_name.xml, with a space char between them.
 - **get_labels**: labels as json for paths like */x/y/z* found as *[root]/x/y/z/labels.json*
-- **get_doc**: docs at paths like */x/y/z#name* found as *[root]/x/y/z/name.[ext]*. These docs are processed in the same way as the default doc.
+- **get_doc**: docs at paths like */x/y/z#name* found as *[root]/x/y/z/name.[ext]*. These docs are processed in the same way as the default doc. The name separator can be configured to be a different character by adding a [hashmark] value to the config ini file under [filenames].
 - **get_concat_doc**: docs as concats of files for paths like */x/y/z* found as *[root]/x/y/z/page.txt* where page.txt is a list of simple doc names to be concatenated. Simple doc names are the same as docs named by the *#name* path suffix. The files to be concatenated must be in the directory pointed to by the path.
 - **get_compose_doc**: docs as jinja files at paths like */x/y/z/page.html* that compose pages where docs are pulled in using jinja expressions like:
 *{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}*
@@ -54,10 +54,10 @@ Creating a cdocs endpoint using Flask might look something like:
 >
 >     return cdocs.get_doc(cdocspath)
 
-Flask won't have access to an anchor appended to a URL after a hashmark. (E.g. 'http://a.com/x/y/z#name'). To work around that you can add a [filenames][hashmark] setting to the config.ini with a different character.  E.g.:
+Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. 'http://a.com/x/y/z#name'). To work around that you can add a [filenames][hashmark] setting to the config.ini with a different character.  E.g.:
 > [filenames]
 >
-> hashmark = .
+> hashmark = *
 
 
 ### TODO:
