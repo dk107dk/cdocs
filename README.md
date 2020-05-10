@@ -9,7 +9,7 @@ Cdocs can also be used to find text strings referred to as labels. Labels are st
 
 Docs are stored in two directory trees: public and internal. The public tree is for your docs writers to store their content. Internal is for defaults and is expected to not be widely accessible. Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
 
-Use a *config.ini* to set the documentation root directory, file extension, etc.  The contents should be similar to this:
+Use a *config.ini* to set the documentation root directory, file extension, etc. The default location is ```os.getcwd()/config/config.ini```. You can pass a different path in the Cdocs constructor. The contents should be similar to this:
 ```
 [docs]
  public = /Users/davidkershaw/dev/cdocs/docs/example
