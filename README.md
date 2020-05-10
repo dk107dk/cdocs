@@ -43,10 +43,15 @@ Cdocs has several ways of getting content:
 
 Creating a cdocs endpoint using Flask might look something like:
 > app = Flask(__name__)
+>
 > api = Api(app)
+>
 > @app.route('/cdocs/<path:cdocspath>')
+>
 > def cdocs(cdocspath:str):
+>
 >     cdocs = Cdocs()
+>
 >     return cdocs.get_doc(cdocspath)
 
 Flask won't have access to an anchor appended to a URL after a hashmark. (E.g. 'http://a.com/x/y/z#name'). To work around that you can add a [filenames][hashmark] setting to the config.ini with a different character.  E.g.:
