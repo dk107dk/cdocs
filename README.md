@@ -40,7 +40,7 @@ Docs can be incorporated in other docs using jinja expressions like:
  - **get_doc**: docs at paths like */x/y/z#name* found as *[root]/x/y/z/name.[ext]*. These docs are processed in the same way as the default doc. The name separator can be configured to be a different character by adding a [hashmark] value to the config ini file under [filenames].
  - **get_concat_doc**: docs as concats of files for paths like */x/y/z* found as *[root]/x/y/z/page.txt* where page.txt is a list of simple doc names to be concatenated. Simple doc names are the same as docs named by the *#name* path suffix. The files to be concatenated must be in the directory pointed to by the path.
  - **get_compose_doc**: docs as jinja files at paths like */x/y/z/page.html* that compose pages where docs are pulled in using jinja expressions like:
-```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```
+```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```.
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
  - **get_labels**: labels as json dicts for paths like */x/y/z* found as *[root]/x/y/z/labels.json*. Labels are transformed in the same way as docs, except that the keys of the json dict are individual templates. A label can pull in a doc in the same way that a doc is embedded in a compose doc.
 
