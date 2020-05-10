@@ -50,23 +50,20 @@ Cdocs has several ways of getting content:
  - **get_labels**: labels as json dicts for paths like ```/x/y/z``` found as ```[root]/x/y/z/labels.json```. Labels are transformed in the same way as docs, except that the keys of the json dict are individual templates. A label can pull in a doc in the same way that a doc is embedded in a compose doc.
 
 Creating a cdocs endpoint using Flask might look something like:
-> app = Flask(__name__)
->
-> api = Api(app)
->
-> @app.route('/cdocs/&lt;path:cdocspath&gt;')
->
-> def cdocs(cdocspath:str):
->
->     cdocs = Cdocs()
->
->     return cdocs.get_doc(cdocspath)
+```
+app = Flask(__name__)
+api = Api(app)
+@app.route('/cdocs/&lt;path:cdocspath&gt;')
+def cdocs(cdocspath:str):
+     cdocs = Cdocs()
+     return cdocs.get_doc(cdocspath)
+```
 
-Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. 'http://a.com/x/y/z#name'). To work around that you can add a [filenames][hashmark] setting to the config.ini with a different character.  E.g.:
-> [filenames]
->
-> hashmark = *
-
+Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. ```http://a.com/x/y/z#name```). To work around that you can add a [filenames][hashmark] setting to the config.ini with a different character.  E.g.:
+```
+[filenames]
+ hashmark = *
+```
 
 ### TODO:
 - indicate a transformer for default and #name docs. E.g. to transform xml > md, md > html, etc.
