@@ -36,6 +36,7 @@ Cdocs has several ways of getting content:
  - **get_doc**: docs at paths like */x/y/z* with the physical file being at *[root]/x/y/z.[ext]*. This is the "default" doc for the path. The result text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree.
 Docs can be incorporated in other docs using jinja expressions like:
 > {{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}
+
       This functionality is essentially the same as the more specific *get_compose_doc* method, below. Paths may not have periods in them. You may use '+' (or the config value at [filenames][plus]) to concat docs on the fly. For e.g. /x/y/z#name+new_name+edit_name would return the doc at /x/y/z/name.xml + /x/y/z/new_name.xml + /x/y/z/edit_name.xml, with a space char between them.
  - **get_doc**: docs at paths like */x/y/z#name* found as *[root]/x/y/z/name.[ext]*. These docs are processed in the same way as the default doc. The name separator can be configured to be a different character by adding a [hashmark] value to the config ini file under [filenames].
  - **get_concat_doc**: docs as concats of files for paths like */x/y/z* found as *[root]/x/y/z/page.txt* where page.txt is a list of simple doc names to be concatenated. Simple doc names are the same as docs named by the *#name* path suffix. The files to be concatenated must be in the directory pointed to by the path.
