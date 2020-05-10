@@ -35,8 +35,7 @@ Use a *config.ini* to set the documentation root directory, file extension, etc.
 Cdocs has several ways of getting content:
  - **get_doc**: docs at paths like */x/y/z* with the physical file being at *[root]/x/y/z.[ext]*. This is the "default" doc for the path. The result text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree.
 
-     Docs can be incorporated in other docs using jinja expressions like:
-```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```.
+     Docs can be incorporated in other docs using jinja expressions like: ```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```.
      This functionality is essentially the same as the more specific *get_compose_doc* method, below.
 
      Paths may not have periods in them.
