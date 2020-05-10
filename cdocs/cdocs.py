@@ -3,9 +3,12 @@ import json
 from pathlib import Path
 from typing import Optional, List, Dict
 from jinja2 import Template
+from logging import Logger
 from cdocs.config import Config
 from cdocs.contextual_docs import ContextualDocs
 from cdocs.dict_finder import DictFinder
+from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict
+
 
 class DocNotFoundException(Exception):
     pass
@@ -29,35 +32,35 @@ class Cdocs(ContextualDocs):
         self._hashmark = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus = cfg.get_with_default("filenames", "plus", "+")
 
-    def get_doc_root(self) -> str:
-        return self._docs_path
+    def get_doc_root(self) -> FilePath:
+        return FilePath(self._docs_path)
 
-    def get_internal_root(self) -> str:
-        return self._internal_path
+    def get_internal_root(self) -> FilePath:
+        return FilePath(self._internal_path)
 
-    def get_tokens(self, path:str) -> dict:
+    def get_tokens(self, path:DocPath) -> JsonDict:
         return self._get_dict(path, self._tokens_filename)
 
-    def get_labels(self, path:str) -> dict:
+    def get_labels(self, path:DocPath) -> JsonDict:
         labels = self._get_dict(path, self._labels_filename)
         return self._transform_labels(path, labels)
 
-    def get_compose_doc(self, path:str) -> str:
+    def get_compose_doc(self, path:DocPath) -> Doc:
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.html') == -1 and path.find('.md') == -1 and path.find('.xml') == -1:
             raise BadDocPath("file at path must be .html, .md or .xml")
-        docpath = self._get_full_doc_path(path)
+        filepath:FilePath = self._get_full_file_path(path)
         try:
-            content = self._read_doc(docpath)
+            content = self._read_doc(filepath)
             tokens:dict = self.get_tokens(path[0:path.rindex('/')])
             content = self._transform(content, path, tokens, True)
-            return content
+            return Doc(content)
         except Exception as e:
             print(f"cannot compose {path}: {e}")
             raise ComposeDocException(f'{path} failed to compose')
 
-    def get_concat_doc(self, path:str) -> str:
+    def get_concat_doc(self, path:DocPath) -> Doc:
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.txt') == -1:
@@ -65,9 +68,10 @@ class Cdocs(ContextualDocs):
         paths = self._get_concat_paths(path)
         if paths is None:
             raise DocNotFoundException(f'No concat instruction file at {path}')
-        return self._concat( paths)
+        content = self._concat( paths)
+        return Doc(content)
 
-    def get_doc(self, path:str) -> str:
+    def get_doc(self, path:DocPath) -> Doc:
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.') > -1:
@@ -76,31 +80,32 @@ class Cdocs(ContextualDocs):
         if len(pluspaths) > 0:
             plus = path.find(self._plus)
             path = path[0:plus]
-        docpath = self._get_full_doc_path(path)
-        content = self._read_doc(docpath)
+        filepath = self._get_full_file_path(path)
+        content = self._read_doc(filepath)
         content = self._transform(content, path, None, True)
         if len(pluspaths) > 0:
             for apath in pluspaths:
                 content += " " + self.get_doc(apath)
-        return content
+        return Doc(content)
 
-    def _transform_labels(self, path:str, labels:Dict[str,str]) -> Dict[str,str]:
+    def _transform_labels(self, path:DocPath, labels:JsonDict) -> JsonDict:
         tokens:dict = self.get_tokens(path)
-        return { k:self._transform(v, path, tokens, False) for k,v in labels.items() }
+        ls = { k:self._transform(v, path, tokens, False) for k,v in labels.items() }
+        return JsonDict(ls)
 
     def _transform(self, content:str, path:Optional[str]=None, tokens:Optional[Dict[str,str]]=None, transform_labels=True) -> str:
         if tokens is None and path is None:
             print(f"Warning: _transform with no path and no tokens")
             tokens = {}
         elif tokens is None:
-            tokens:dict = self.get_tokens(path)
+            tokens:JsonDict = self.get_tokens(path)
         if path is not None and transform_labels:
             tokens = self._add_labels_to_tokens(path, tokens)
         tokens["get_doc"] = self.get_doc
         template = Template(content)
         return template.render(tokens)
 
-    def _add_labels_to_tokens(self, path:str, tokens:Dict[str,str]) -> Dict[str,str]:
+    def _add_labels_to_tokens(self, path:DocPath, tokens:JsonDict) -> JsonDict:
         apath = path
         if path.find(self._hashmark):
             apath = apath[0:apath.find(self._hashmark)]
@@ -109,9 +114,9 @@ class Cdocs(ContextualDocs):
         labels = self.get_labels(apath)
         ltokens = { "label__"+k:v for k,v in labels.items()}
         tokens  = {**ltokens, **tokens}
-        return tokens
+        return JsonDict(tokens)
 
-    def _concat(self, paths:str) -> str:
+    def _concat(self, paths:List[DocPath]) -> Doc:
         result = ''
         for apath in paths:
             if apath.strip() == '':
@@ -119,9 +124,9 @@ class Cdocs(ContextualDocs):
             else:
                 doc = self.get_doc(apath)
                 result += '\n' + doc
-        return result
+        return Doc(result)
 
-    def _get_plus_paths( self, path:str) -> List[str]:
+    def _get_plus_paths( self, path:DocPath) -> List[DocPath]:
         lines = path.split(self._plus)
         if len(lines) == 0:
             return lines
@@ -132,19 +137,19 @@ class Cdocs(ContextualDocs):
             first = first[0:mark+1]
         else:
             first += self._hashmark
-        lines = [ first+line for line in lines]
+        lines = [ DocPath(first+line) for line in lines]
         return lines
 
-    def _get_concat_paths(self, path:str) -> Optional[List[str]]:
-        docpath = self._get_full_doc_path(path)
+    def _get_concat_paths(self, path:DocPath) -> Optional[List[DocPath]]:
+        filepath = self._get_full_file_path(path)
         try:
-            content = self._read_doc(docpath)
-            lines = content.split('\n')
+            content = self._read_doc(filepath)
+            lines = [DocPath(line) for line in content.split('\n')]
             return lines
         except DocNotFoundException:
             return None
 
-    def _read_doc(self, path:str) -> str:
+    def _read_doc(self, path:FilePath) -> str:
         try:
             with open(path) as f:
                 return f.read()
@@ -159,14 +164,14 @@ class Cdocs(ContextualDocs):
             filename = path[hashmark+1:]
         return filename
 
-    def _get_dict(self, path:str, filename:str) -> dict:
+    def _get_dict(self, path:str, filename:str) -> JsonDict:
         path = path.strip('/\\')
         docroot = self.get_doc_root()
         introot = self.get_internal_root()
         tf = DictFinder(introot, docroot, path, filename)
-        return tf.get_tokens()
+        return JsonDict(tf.get_tokens())
 
-    def _get_full_doc_path(self, path:str) -> str:
+    def _get_full_file_path(self, path:DocPath) -> FilePath:
         path = path.strip('/\\')
         filename = self._get_filename(path)
         if filename is None:
@@ -181,5 +186,5 @@ class Cdocs(ContextualDocs):
             pass
         else:
             path = path + os.path.sep + filename + '.' + self._ext
-        return path
+        return FilePath(path)
 

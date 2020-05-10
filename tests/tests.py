@@ -110,12 +110,12 @@ class FirstTests(unittest.TestCase):
         print(f"test_get_filename_special_hashmark: filename: {filename}")
         self.assertEqual(filename, "new_assignee", msg=f"filename must be 'new_assignee'")
 
-    def test_get_full_doc_path(self):
+    def test_get_full_file_path(self):
         docpath = "/app/home/teams/todos/assignee#new_assignee"
         cdocs = Cdocs()
-        path = cdocs._get_full_doc_path(docpath)
+        path = cdocs._get_full_file_path(docpath)
         found = path.find("/assignee/new_assignee.xml")
-        print(f"test_get_full_doc_path: found: {found}")
+        print(f"test_get_full_file_path: found: {found}")
         self.assertNotEqual( -1, found, msg=f"path {path} must end in '/assignee/new_assignee.xml'")
 
     def test_get_concat_paths(self):
