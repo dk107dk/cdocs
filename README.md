@@ -1,7 +1,9 @@
 # Cdocs
 ## A super simple contextual help library.
 
-**Cdocs** is intended to help manage files for use in contextual help systems. The library knows how to find docs given a path. The expected use is to create an endpoint to retrieve docs from at runtime, or to pull docs into an app build.
+**Cdocs** is intended to help manage files for use in contextual help systems. The library knows how to find docs given a path. Paths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+
+The expected use of Cdocs is to create an endpoint to retrieve docs from at runtime, or to pull docs into an app build.
 
 Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates, if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
