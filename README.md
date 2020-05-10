@@ -10,27 +10,19 @@ Cdocs can also be used to find text strings referred to as labels. Labels are st
 Docs are stored in two directory trees: public and internal. The public tree is for your docs writers to store their content. Internal is for defaults and is expected to not be widely accessible. Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
 
 Use a *config.ini* to set the documentation root directory, file extension, etc.  The contents should be similar to this:
-
-> [docs]
->
-> public = /Users/davidkershaw/dev/cdocs/docs/example
->
-> internal = /Users/davidkershaw/dev/cdocs/docs/internal
->
-> [defaults]
->
-> notfound = [internal]/404
->
-> [formats]
->
-> ext = xml
->
-> [filenames]
->
-> tokens = tokens.json
->
-> labels = labels.json
-
+```
+[docs]
+ public = /Users/davidkershaw/dev/cdocs/docs/example
+ internal = /Users/davidkershaw/dev/cdocs/docs/internal
+[defaults]
+ notfound = [internal]/404
+[formats]
+ ext = xml
+[filenames]
+ tokens = tokens.json
+ labels = labels.json
+ hashmark = #
+```
 
 Cdocs has several ways of getting content:
  - **get_doc**: docs at paths like ```/x/y/z``` with the physical file being at ```[root]/x/y/z.[ext]```. This is the "default" doc for the path. The result text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree.
