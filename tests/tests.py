@@ -50,6 +50,14 @@ class FirstTests(unittest.TestCase):
         print(f"filename: {filename}")
         self.assertEqual(filename, "new_assignee", msg=f"filename must be 'new_assignee'")
 
+    def test_get_filename_special_hashmark(self):
+        docpath = "/app/home/teams/todos/assignee.new_assignee"
+        cdocs = Cdocs()
+        cdocs._hashmark = '.'
+        filename = cdocs._get_filename(docpath)
+        print(f"filename with special hashmark: {filename}")
+        self.assertEqual(filename, "new_assignee", msg=f"filename must be 'new_assignee'")
+
     def test_get_full_doc_path(self):
         docpath = "/app/home/teams/todos/assignee#new_assignee"
         cdocs = Cdocs()

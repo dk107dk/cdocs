@@ -18,6 +18,7 @@ class ComposeDocException(Exception):
 
 
 class Cdocs(ContextualDocs):
+
     def __init__(self, configpath:Optional[str]=None):
         cfg = Config(configpath)
         self._docs_path = cfg.get("docs", "public")
@@ -25,6 +26,9 @@ class Cdocs(ContextualDocs):
         self._ext = cfg.get("formats", "ext")
         self._tokens_filename = cfg.get("filenames", "tokens")
         self._labels_filename = cfg.get("filenames", "labels")
+        self._hashmark = cfg.get("filenames", "hashmark")
+        if self._hashmark is None:
+            self._hashmark = '#'
 
     def get_doc_root(self) -> str:
         return self._docs_path
@@ -32,12 +36,11 @@ class Cdocs(ContextualDocs):
     def get_internal_root(self) -> str:
         return self._internal_path
 
-    def _get_filename(self, path:str) -> Optional[str]:
-        filename = None
-        hashmark = path.find("#")
-        if hashmark > -1:
-            filename = path[hashmark+1:]
-        return filename
+    def get_tokens(self, path:str) -> dict:
+        return self._get_dict(path, self._tokens_filename)
+
+    def get_labels(self, path:str) -> dict:
+        return self._get_dict(path, self._labels_filename)
 
     def get_compose_doc(self, path:str) -> str:
         if path is None :
@@ -73,15 +76,6 @@ class Cdocs(ContextualDocs):
                 result += '\n' + doc
         return result
 
-    def _get_concat_paths(self, path:str) -> Optional[List[str]]:
-        docpath = self._get_full_doc_path(path)
-        try:
-            content = self._read_doc(docpath)
-            lines = content.split('\n')
-            return lines
-        except DocNotFoundException:
-            return None
-
     def get_doc(self, path:str) -> str:
         if path is None :
             raise DocNotFoundException("path can not be None")
@@ -92,6 +86,15 @@ class Cdocs(ContextualDocs):
         content = self._transform(path, content)
         return content
 
+    def _get_concat_paths(self, path:str) -> Optional[List[str]]:
+        docpath = self._get_full_doc_path(path)
+        try:
+            content = self._read_doc(docpath)
+            lines = content.split('\n')
+            return lines
+        except DocNotFoundException:
+            return None
+
     def _read_doc(self, path:str) -> str:
         try:
             with open(path) as f:
@@ -100,17 +103,18 @@ class Cdocs(ContextualDocs):
             print(f'cannot read: {fnfe}')
             raise DocNotFoundException(f"unreadable path: {path}")
 
+    def _get_filename(self, path:str) -> Optional[str]:
+        filename = None
+        hashmark = path.find(self._hashmark)
+        if hashmark > -1:
+            filename = path[hashmark+1:]
+        return filename
+
     def _transform(self, path:str, content:str) -> str:
         tokens:dict = self.get_tokens(path)
         template = Template(content)
         content = template.render(tokens)
         return content
-
-    def get_tokens(self, path:str) -> dict:
-        return self._get_dict(path, self._tokens_filename)
-
-    def get_labels(self, path:str) -> dict:
-        return self._get_dict(path, self._labels_filename)
 
     def _get_dict(self, path:str, filename:str) -> dict:
         path = path.strip('/\\')
@@ -125,7 +129,7 @@ class Cdocs(ContextualDocs):
         if filename is None:
             pass
         else:
-            path = path[0:path.find('#')]
+            path = path[0:path.find(self._hashmark)]
         root = self.get_doc_root()
         path = os.path.join(root, path)
         if filename is None and path.find(".") == -1:

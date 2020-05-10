@@ -41,11 +41,23 @@ Cdocs has several ways of getting content:
 *{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}*
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
 
+Creating a cdocs endpoint using Flask might look something like:
+> app = Flask(__name__)
+> api = Api(app)
+> @app.route('/cdocs/<path:cdocspath>')
+> def cdocs(cdocspath:str):
+>     cdocs = Cdocs()
+>     return cdocs.get_doc(cdocspath)
+
+Flask won't have access to an anchor appended to a URL after a hashmark. (E.g. 'http://a.com/x/y/z#name'). To work around that you can add a [filenames][hashmark] setting to the config.ini with a different character.  E.g.:
+> [filenames]
+> hashmark = .
+
+
 ### TODO:
 - indicate a transformer for default and #name docs. E.g. to transform xml > md, md > html, etc.
 - think about if all docs should be able to pull in other docs, not just the compose docs.
 - think about if concat and compose docs should be transformed before being included in the other type. e.g. if /x/y/z/concat.txt included /x/compose.html then compose.html would be rendered before being concatenated.
-- create a Flask Api for requesting docs and labels
 
 
 
