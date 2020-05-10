@@ -6,7 +6,7 @@ class Config:
 
     def __init__(self, path:Optional[str]=None):
         if path is None:
-            print(f"WARNING: cdocs config init without config path. using default: {os.getcwd()}/config/config.ini")
+            #print(f"WARNING: cdocs config init without config path. using default: {os.getcwd()}/config/config.ini")
             self._path = 'config/config.ini'
         else:
             self._path = path

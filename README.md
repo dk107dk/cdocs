@@ -26,7 +26,9 @@ Use a *config.ini* to set the documentation root directory, file extension, etc.
 ```
 
 Cdocs has several ways of getting content:
- - **get_doc**: docs at paths like ```/x/y/z``` with the physical file being at ```[root]/x/y/z.[ext]```. This is the "default" doc for the path. The result text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree.
+ - **get_doc**: docs at paths like ```/x/y/z``` with the physical file being at ```[root]/x/y/z.[ext]```. This is the "default" doc for the path.
+
+     The resulting text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree. The tokens dict will also have all the labels from the ```labels.json``` files found by crawling up the directory trees from the same point. Labels are added to the tokens dict as ```label__[label value]```. *Note that a good choice of word separator char for tokens and labels keys is the underscore.*
 
      Docs can be incorporated in other docs using jinja expressions like: ```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```.
      This functionality is essentially the same as the more specific *get_compose_doc* method, below.
@@ -42,7 +44,7 @@ Cdocs has several ways of getting content:
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
  - **get_labels**: labels as json dicts for paths like ```/x/y/z``` found as ```[root]/x/y/z/labels.json```. Labels are transformed in the same way as docs, except that the keys of the json dict are individual templates. A label can pull in a doc in the same way that a doc is embedded in a compose doc.
 
-Creating a cdocs endpoint using Flask might look something like:
+Creating a Cdocs endpoint using Flask might look something like:
 ```
 app = Flask(__name__)
 api = Api(app)

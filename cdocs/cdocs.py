@@ -51,7 +51,7 @@ class Cdocs(ContextualDocs):
         try:
             content = self._read_doc(docpath)
             tokens:dict = self.get_tokens(path[0:path.rindex('/')])
-            content = self._transform(content, path, tokens)
+            content = self._transform(content, path, tokens, True)
             return content
         except Exception as e:
             print(f"cannot compose {path}: {e}")
@@ -78,7 +78,7 @@ class Cdocs(ContextualDocs):
             path = path[0:plus]
         docpath = self._get_full_doc_path(path)
         content = self._read_doc(docpath)
-        content = self._transform(content, path, None)
+        content = self._transform(content, path, None, True)
         if len(pluspaths) > 0:
             for apath in pluspaths:
                 content += " " + self.get_doc(apath)
@@ -86,17 +86,30 @@ class Cdocs(ContextualDocs):
 
     def _transform_labels(self, path:str, labels:Dict[str,str]) -> Dict[str,str]:
         tokens:dict = self.get_tokens(path)
-        return { k:self._transform(v, path, tokens) for k,v in labels.items() }
+        return { k:self._transform(v, path, tokens, False) for k,v in labels.items() }
 
-    def _transform(self, content:str, path:Optional[str]=None, tokens:Optional[Dict[str,str]]=None) -> str:
+    def _transform(self, content:str, path:Optional[str]=None, tokens:Optional[Dict[str,str]]=None, transform_labels=True) -> str:
         if tokens is None and path is None:
             print(f"Warning: _transform with no path and no tokens")
-            tokens = []
-        if tokens is None:
+            tokens = {}
+        elif tokens is None:
             tokens:dict = self.get_tokens(path)
+        if path is not None and transform_labels:
+            tokens = self._add_labels_to_tokens(path, tokens)
         tokens["get_doc"] = self.get_doc
         template = Template(content)
         return template.render(tokens)
+
+    def _add_labels_to_tokens(self, path:str, tokens:Dict[str,str]) -> Dict[str,str]:
+        apath = path
+        if path.find(self._hashmark):
+            apath = apath[0:apath.find(self._hashmark)]
+        if apath.find(self._plus):
+            apath = apath[0:apath.find(self._plus)]
+        labels = self.get_labels(apath)
+        ltokens = { "label__"+k:v for k,v in labels.items()}
+        tokens  = {**ltokens, **tokens}
+        return tokens
 
     def _concat(self, paths:str) -> str:
         result = ''
