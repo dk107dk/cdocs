@@ -3,9 +3,9 @@
 
 **Cdocs** is intended to help manage files for use in contextual help systems. The library knows how to find docs given a path. The expected use is to create an endpoint to retrieve docs from at runtime, or to pull docs into an app build.
 
-Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates, if found. Files can be concatenated or composed.
+Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates, if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
-Cdocs can also be used to find text strings referred to as labels. Labels are stored as (non-template) JSON files in the same directory tree. The expected use is to find a JSON structure of labels for UI elements that would be seen in the same screen contextual help is available for.
+Cdocs can also be used to find text strings referred to as labels. Labels are stored as (non-template) json files containing dict in the same directory tree. The expected use is to find a JSON structure of labels for UI elements that would be seen in the same screen contextual help is available for.
 
 Docs are stored in two directory trees: public and internal. The public tree is for your docs writers to store their content. Internal is for defaults and is expected to not be widely accessible. Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
 
@@ -14,14 +14,13 @@ Use a *config.ini* to set the documentation root directory, file extension, etc.
 [docs]
  public = /Users/davidkershaw/dev/cdocs/docs/example
  internal = /Users/davidkershaw/dev/cdocs/docs/internal
-[defaults]
- notfound = [internal]/404
 [formats]
  ext = xml
 [filenames]
  tokens = tokens.json
  labels = labels.json
  hashmark = #
+ plus = +
 ```
 
 Cdocs has several ways of getting content:
@@ -59,7 +58,6 @@ Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. ```h
 
 ### TODO:
 - indicate a transformer for default and #name docs. E.g. to transform xml > md, md > html, etc.
-- think about if all docs should be able to pull in other docs, not just the compose docs.
 - think about if concat and compose docs should be transformed before being included in the other type. e.g. if /x/y/z/concat.txt included /x/compose.html then compose.html would be rendered before being concatenated.
 
 
