@@ -22,6 +22,15 @@ FilePath = NewType('FilePath', str)
 # Only tokens JsonDict have callable members.
 JsonDict = NewType('JsonDict', Dict[str, Union[str,Callable[[str],str]]])
 
+# DocVersion is a string indicating a revision of the docs
+# in the public and internal trees
+DocsVersion = NewType('DocsVersion', str)
+
+# DocsName is the name of the corpus. A corpus named by DocsName
+# has an impied or explicit DocVersion.
+DocsName = NewType('DocsName', str)
+
+
 class ContextualDocs(metaclass=abc.ABCMeta):
     """
     See the README.md file for description of the library and
