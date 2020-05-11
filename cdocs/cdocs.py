@@ -3,12 +3,13 @@ import json
 from pathlib import Path
 from typing import Optional, List, Dict
 from jinja2 import Template
-from logging import Logger
 from cdocs.config import Config
 from cdocs.contextual_docs import ContextualDocs
 from cdocs.dict_finder import DictFinder
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict
 from cdocs.simple_reader import SimpleReader
+from cdocs.reader import Reader
+
 
 class DocNotFoundException(Exception):
     pass
@@ -32,6 +33,9 @@ class Cdocs(ContextualDocs):
         self._hashmark = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus = cfg.get_with_default("filenames", "plus", "+")
         self._reader = SimpleReader()
+
+    def set_reader(self, reader:Reader) -> None:
+        self._reader = reader
 
     def get_doc_root(self) -> FilePath:
         return FilePath(self._docs_path)
