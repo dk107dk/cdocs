@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import json
+import logging
 
 
 class BadToken(Exception):
@@ -40,5 +41,6 @@ class DictFinder(object):
             with open(path) as f:
                 return json.load(f)
         except FileNotFoundError as e:
+            logging.debug(f"DictFinder._read_json: no such file {path}. returning empty dict, as expected.")
             return dict()
 

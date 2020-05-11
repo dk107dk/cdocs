@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Optional, List, Dict
 from jinja2 import Template
+import logging
 from cdocs.config import Config
 from cdocs.contextual_docs import ContextualDocs
 from cdocs.dict_finder import DictFinder
@@ -33,6 +34,9 @@ class Cdocs(ContextualDocs):
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
         self._reader:Reader = SimpleReader()
+        logging.info(f"Cdocs.__init__: path: {self._docs_path}, intpath: {self._internal_path}, \
+ext: {self._ext}, tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
+hash: {self._hashmark}, plus: {self._plus}")
 
     def set_reader(self, reader:Reader) -> None:
         self._reader = reader
@@ -62,7 +66,7 @@ class Cdocs(ContextualDocs):
             content = self._transform(content, path, tokens, True)
             return Doc(content)
         except Exception as e:
-            print(f"cannot compose {path}: {e}")
+            logging.error(f"Cdocs.get_compose_doc: cannot compose {path}: {e}")
             raise ComposeDocException(f'{path} failed to compose')
 
     def get_concat_doc(self, path:DocPath) -> Doc:
@@ -152,6 +156,7 @@ class Cdocs(ContextualDocs):
             lines = [DocPath(line) for line in content.split('\n')]
             return lines
         except DocNotFoundException:
+            logging.warn(f"Cdocs._get_concat_paths: No such doc {path}. returning None.")
             return None
 
     def _read_doc(self, path:FilePath) -> str:

@@ -1,12 +1,14 @@
 from configparser import ConfigParser
 import os
 from typing import Optional
+import logging
+
 
 class Config:
 
     def __init__(self, path:Optional[str]=None):
         if path is None:
-            #print(f"WARNING: cdocs config init without config path. using default: {os.getcwd()}/config/config.ini")
+            logging.debug(f"cdocs Config.__init__ without config path. using default: {os.getcwd()}/config/config.ini")
             self._path = 'config/config.ini'
         else:
             self._path = path
@@ -23,7 +25,7 @@ class Config:
         try:
             return self._parser.get(group, name)
         except Exception as e:
-            print(f"Unable to get [{group}][{name}]: {e}")
+            logging.warn(f"Cdocs Config.get: unable to get [{group}][{name}]: {e}. returning None.")
             return None
 
 
