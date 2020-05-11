@@ -25,14 +25,14 @@ class Cdocs(ContextualDocs):
 
     def __init__(self, configpath:Optional[str]=None):
         cfg = Config(configpath)
-        self._docs_path = cfg.get("docs", "public")
-        self._internal_path = cfg.get("docs", "internal")
-        self._ext = cfg.get_with_default("formats", "ext", "xml")
-        self._tokens_filename = cfg.get_with_default("filenames", "tokens", "tokens.json")
-        self._labels_filename = cfg.get_with_default("filenames", "labels", "labels.json")
-        self._hashmark = cfg.get_with_default("filenames", "hashmark", "#")
-        self._plus = cfg.get_with_default("filenames", "plus", "+")
-        self._reader = SimpleReader()
+        self._docs_path:str = cfg.get("docs", "public")
+        self._internal_path:str  = cfg.get("docs", "internal")
+        self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
+        self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
+        self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
+        self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
+        self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
+        self._reader:Reader = SimpleReader()
 
     def set_reader(self, reader:Reader) -> None:
         self._reader = reader
@@ -156,12 +156,6 @@ class Cdocs(ContextualDocs):
 
     def _read_doc(self, path:FilePath) -> str:
         return self._reader.read(path, None)
-        #try:
-        #    with open(path) as f:
-        #        return f.read()
-        #except FileNotFoundError as fnfe:
-        #    print(f'cannot read: {fnfe}')
-        #    raise DocNotFoundException(f"unreadable path: {path}")
 
     def _get_filename(self, path:str) -> Optional[str]:
         filename = None
