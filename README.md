@@ -63,7 +63,7 @@ Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. ```h
 ### TODO:
 - Configure a transformer for default and #name docs. (And concat and compose?) E.g. to automatically transform xml > md, md > html, etc.
 - Think about if concat and compose docs should be transformed before being included in the other type. e.g. if /x/y/z/concat.txt included /x/compose.html then compose.html would be rendered before being concatenated.
-
+- Switch to logging
 
 
 
