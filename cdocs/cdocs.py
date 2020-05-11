@@ -8,7 +8,7 @@ from cdocs.config import Config
 from cdocs.contextual_docs import ContextualDocs
 from cdocs.dict_finder import DictFinder
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict
-
+from cdocs.simple_reader import SimpleReader
 
 class DocNotFoundException(Exception):
     pass
@@ -31,6 +31,7 @@ class Cdocs(ContextualDocs):
         self._labels_filename = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus = cfg.get_with_default("filenames", "plus", "+")
+        self._reader = SimpleReader()
 
     def get_doc_root(self) -> FilePath:
         return FilePath(self._docs_path)
@@ -150,12 +151,13 @@ class Cdocs(ContextualDocs):
             return None
 
     def _read_doc(self, path:FilePath) -> str:
-        try:
-            with open(path) as f:
-                return f.read()
-        except FileNotFoundError as fnfe:
-            print(f'cannot read: {fnfe}')
-            raise DocNotFoundException(f"unreadable path: {path}")
+        return self._reader.read(path, None)
+        #try:
+        #    with open(path) as f:
+        #        return f.read()
+        #except FileNotFoundError as fnfe:
+        #    print(f'cannot read: {fnfe}')
+        #    raise DocNotFoundException(f"unreadable path: {path}")
 
     def _get_filename(self, path:str) -> Optional[str]:
         filename = None
