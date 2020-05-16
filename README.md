@@ -9,9 +9,11 @@ Cdocs stores documentation as text files in a directory tree. Files are Jinja te
 
 Cdocs can also be used to find text strings referred to as labels. Labels are stored as (non-template) json files containing dict in the same directory tree. The expected use is to find a JSON structure of labels for UI elements that would be seen in the same screen contextual help is available for.
 
-Docs are stored in two directory trees: public and internal. The public tree is for your docs writers to store their content. Internal is for defaults and is expected to not be widely accessible. Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
+Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
 
-Use a *config.ini* to set the documentation root directory, file extension, etc. The default location is ```os.getcwd()/config/config.ini```. You can pass a different path in the Cdocs constructor. The contents should be similar to this:
+Docs are stored in directory trees. You may configure as many trees as is useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. Each root is self-contained, meaning that labels and tokens are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels returns labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
+
+Use a *config.ini* to set the root directories, file extension, etc. The default location for the config file is ```os.getcwd()/config/config.ini```. You can pass a different path in the Cdocs constructor. The contents should be similar to this:
 ```
 [docs]
  public = /Users/davidkershaw/dev/cdocs/docs/example
@@ -38,7 +40,7 @@ Cdocs has several ways of getting content:
      You may use '+' (or the config value at [filenames][plus]) to concat docs from the same path on the fly. For e.g.
 ```/x/y/z#name+new_name+edit_name``` would return the doc at ```/x/y/z/name.xml``` + ```/x/y/z/new_name.xml``` + ```/x/y/z/edit_name.xml```, with a space char joining them.
  - **get_doc**: docs at paths like ```/x/y/z#name``` found as ```[root]/x/y/z/name.[ext]```. These docs are processed in the same way as the default doc. The name separator can be configured to be a different character by adding a [hashmark] value to the config ini file under [filenames].
- - **get_concat_doc**: docs as concats of files for paths like ```/x/y/z``` found as ```[root]/x/y/z/page.txt``` where page.txt is a list of simple doc names to be concatenated. Simple doc names are the same as docs named by the *#name* path suffix. The files to be concatenated may be anywhere in the document tree.
+ - **get_concat_doc**: docs as concats of files for paths like ```/x/y/z``` found as ```[root]/x/y/z/page.concat``` where page.concat is a list of simple doc names to be concatenated. Simple doc names are the same as docs named by the *#name* path suffix. The files to be concatenated may be anywhere in the document tree.
  - **get_compose_doc**: docs as jinja files at paths like ```/x/y/z/page.html``` that compose pages where docs are pulled in using jinja expressions like:
 ```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```.
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
@@ -60,11 +62,23 @@ Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. ```h
  hashmark = *
 ```
 
+The same endpoint using all of multiple docs directory trees configured in context.ini might look like:
+```
+app = Flask(__name__)
+api = Api(app)
+@app.route('/cdocs/&lt;path:cdocspath&gt;')
+def cdocs(cdocspath:str):
+     metadata = ContextMetaData()
+     context = Context(metadata)
+     return context.get_doc(cdocspath)
+```
+An endpoint implementation might want to search certain trees based on the locale of the request, a version name, a product name, an author, etc.
+
 ### TODO:
 - Configure a transformer for default and #name docs. (And concat and compose?) E.g. to automatically transform xml > md, md > html, etc.
 - Think about if concat and compose docs should be transformed before being included in the other type. e.g. if /x/y/z/concat.txt included /x/compose.html then compose.html would be rendered before being concatenated.
-- Switch to logging
-
+- Create methods for retrieving binary docs, maybe by declaring a root to not support transforms
+- Allow tagging a root with file types that can be requested
 
 
 

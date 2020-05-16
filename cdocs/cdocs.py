@@ -5,10 +5,11 @@ from typing import Optional, List, Dict
 from jinja2 import Template
 import logging
 from cdocs.config import Config
-from cdocs.contextual_docs import ContextualDocs
 from cdocs.dict_finder import DictFinder
-from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict
+from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDocs
 from cdocs.simple_reader import SimpleReader
+from cdocs.simple_pather import SimplePather
+from cdocs.pather import Pather
 from cdocs.reader import Reader
 
 
@@ -24,28 +25,39 @@ class ComposeDocException(Exception):
 
 class Cdocs(ContextualDocs):
 
-    def __init__(self, configpath:Optional[str]=None):
-        cfg = Config(configpath)
-        self._docs_path:str = cfg.get("docs", "public")
-        self._internal_path:str  = cfg.get("docs", "internal")
+    def __init__(self, docspath:str, config:Optional[Config]=None):
+        cfg = Config(None) if config is None else config
+        self._config = cfg
+        self._docs_path:str = docspath
         self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
         self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
         self._reader:Reader = SimpleReader()
-        logging.info(f"Cdocs.__init__: path: {self._docs_path}, intpath: {self._internal_path}, \
-ext: {self._ext}, tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
+        self._pather:Pather = SimplePather(self._docs_path, cfg.get_config_path())
+        logging.info(f"Cdocs.__init__: path: {self._docs_path}, ext: {self._ext}, \
+tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
 hash: {self._hashmark}, plus: {self._plus}")
 
-    def set_reader(self, reader:Reader) -> None:
+    @property
+    def reader(self) -> Reader:
+        return self._reader
+
+    @reader.setter
+    def reader(self, reader:Reader) -> None:
         self._reader = reader
+
+    @property
+    def pather(self) -> Pather:
+        return self._pather
+
+    @pather.setter
+    def pather(self, pather:Pather) -> None:
+        self._pather = pather
 
     def get_doc_root(self) -> FilePath:
         return FilePath(self._docs_path)
-
-    def get_internal_root(self) -> FilePath:
-        return FilePath(self._internal_path)
 
     def get_tokens(self, path:DocPath) -> JsonDict:
         return self._get_dict(path, self._tokens_filename)
@@ -57,9 +69,7 @@ hash: {self._hashmark}, plus: {self._plus}")
     def get_compose_doc(self, path:DocPath) -> Doc:
         if path is None :
             raise DocNotFoundException("path can not be None")
-        if path.find('.html') == -1 and path.find('.md') == -1 and path.find('.xml') == -1:
-            raise BadDocPath("file at path must be .html, .md or .xml")
-        filepath:FilePath = self._get_full_file_path(path)
+        filepath:FilePath = self._pather.get_full_file_path(path)
         try:
             content = self._read_doc(filepath)
             tokens:dict = self.get_tokens(path[0:path.rindex('/')])
@@ -72,8 +82,8 @@ hash: {self._hashmark}, plus: {self._plus}")
     def get_concat_doc(self, path:DocPath) -> Doc:
         if path is None :
             raise DocNotFoundException("path can not be None")
-        if path.find('.txt') == -1:
-            raise BadDocPath("path must have a .txt file extension")
+        if path.find('.concat') == -1:
+            raise BadDocPath("path must have a .concat file extension")
         paths = self._get_concat_paths(path)
         if paths is None:
             raise DocNotFoundException(f'No concat instruction file at {path}')
@@ -86,15 +96,19 @@ hash: {self._hashmark}, plus: {self._plus}")
         if path.find('.') > -1:
             raise BadDocPath("dots are not allowed in doc paths")
         pluspaths = self._get_plus_paths(path)
+        root = self.get_doc_root()
+        return self._get_doc_for_root(path, pluspaths, root)
+
+    def _get_doc_for_root(self, path:DocPath, pluspaths:List[DocPath], root:FilePath) -> Doc:
         if len(pluspaths) > 0:
             plus = path.find(self._plus)
             path = path[0:plus]
-        filepath = self._get_full_file_path(path)
+        filepath = self._pather.get_full_file_path_for_root(path, root)
         content = self._read_doc(filepath)
         content = self._transform(content, path, None, True)
         if len(pluspaths) > 0:
             for apath in pluspaths:
-                content += " " + self.get_doc(apath)
+                content += " " + self._get_doc_for_root(apath, [], root)
         return Doc(content)
 
     def _transform_labels(self, path:DocPath, labels:JsonDict) -> JsonDict:
@@ -103,6 +117,9 @@ hash: {self._hashmark}, plus: {self._plus}")
         return JsonDict(ls)
 
     def _transform(self, content:str, path:Optional[str]=None, tokens:Optional[Dict[str,str]]=None, transform_labels=True) -> str:
+        if content is None:
+            logging.info("Cdocs._transform: cannot transform None. returning ''")
+            return None
         if tokens is None and path is None:
             print(f"Warning: _transform with no path and no tokens")
             tokens = {}
@@ -150,7 +167,7 @@ hash: {self._hashmark}, plus: {self._plus}")
         return lines
 
     def _get_concat_paths(self, path:DocPath) -> Optional[List[DocPath]]:
-        filepath = self._get_full_file_path(path)
+        filepath = self._pather.get_full_file_path(path)
         try:
             content = self._read_doc(filepath)
             lines = [DocPath(line) for line in content.split('\n')]
@@ -160,36 +177,23 @@ hash: {self._hashmark}, plus: {self._plus}")
             return None
 
     def _read_doc(self, path:FilePath) -> str:
-        return self._reader.read(path, None)
-
-    def _get_filename(self, path:str) -> Optional[str]:
-        filename = None
-        hashmark = path.find(self._hashmark)
-        if hashmark > -1:
-            filename = path[hashmark+1:]
-        return filename
+        content = None
+        available = self._reader.is_available(path)
+        logging.info(f"Cdocs._read_doc: {available}")
+        if available:
+            content = self._reader.read(path, None)
+            if content is None:
+                logging.warning(f"Cdocs._read_doc: cannot read {path}. returning None.")
+        else:
+            logging.debug(f"Cdocs._read_doc: No such doc {path}. returning None.")
+        logging.info(f"Cdocs._read_doc: returning: {content}")
+        return content
 
     def _get_dict(self, path:str, filename:str) -> JsonDict:
         path = path.strip('/\\')
         docroot = self.get_doc_root()
-        introot = self.get_internal_root()
-        tf = DictFinder(introot, docroot, path, filename)
+        tf = DictFinder(docroot, path, filename)
         return JsonDict(tf.get_tokens())
 
-    def _get_full_file_path(self, path:DocPath) -> FilePath:
-        path = path.strip('/\\')
-        filename = self._get_filename(path)
-        if filename is None:
-            pass
-        else:
-            path = path[0:path.find(self._hashmark)]
-        root = self.get_doc_root()
-        path = os.path.join(root, path)
-        if filename is None and path.find(".") == -1:
-            path = path + "." + self._ext
-        elif filename is None:
-            pass
-        else:
-            path = path + os.path.sep + filename + '.' + self._ext
-        return FilePath(path)
+
 

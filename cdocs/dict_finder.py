@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 import os
 import json
 import logging
@@ -10,18 +11,16 @@ class BadToken(Exception):
 
 class DictFinder(object):
 
-    def __init__(self, introot:str, docroot:str, path:str, tokensname:str):
+    def __init__(self, docroot:str, path:str, tokensname:str):
         self._docroot = docroot
-        self._introot = introot
         self._path = path
         self._tokens_name = tokensname
 
     def get_tokens(self):
+        """ first checks "public", then other roots, last "internal". prefered in that order """
         pointer = os.path.join(self._docroot, self._path)
         tokens = dict()
         tokens = self._find_tokens( self._docroot, pointer, tokens)
-        pointer = os.path.join(self._introot, self._path)
-        tokens = self._find_tokens( self._introot, pointer, tokens)
         return tokens
 
     def _find_tokens( self, root:str, pointer:str, tokens:dict) -> dict:

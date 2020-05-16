@@ -3,6 +3,7 @@ from cdocs.contextual_docs import Doc, DocPath, FilePath, DocsVersion, DocsName
 
 class ReadMetaData(object):
 
+
     def __init__(self, \
             docpath:DocPath,
             docversion:DocsVersion, \
@@ -18,6 +19,10 @@ class ReadMetaData(object):
 
 
 class Reader(metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def is_available(self, filepath:FilePath, meta:ReadMetaData=None) -> bool:
+        pass
 
     @abc.abstractmethod
     def read(self, filepath:FilePath, meta:ReadMetaData=None) -> Doc:

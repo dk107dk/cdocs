@@ -1,5 +1,5 @@
 import abc
-from typing import NewType, Dict, Callable, Union
+from typing import NewType, Dict, Callable, Union, Optional
 
 
 # Doc is the contextual documentation content
@@ -38,19 +38,19 @@ class ContextualDocs(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_concat_doc(self, path:DocPath) -> Doc:
+    def get_concat_doc(self, path:DocPath) -> Optional[Doc]:
         pass
 
     @abc.abstractmethod
-    def get_compose_doc(self, path:DocPath) -> Doc:
+    def get_compose_doc(self, path:DocPath) -> Optional[Doc]:
         pass
 
     @abc.abstractmethod
-    def get_doc(self, path:DocPath) -> Doc:
+    def get_doc(self, path:DocPath) -> Optional[Doc]:
         pass
 
     @abc.abstractmethod
-    def get_labels(self, path:DocPath) -> JsonDict:
+    def get_labels(self, path:DocPath) ->  Optional[JsonDict]:
         pass
 
 

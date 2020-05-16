@@ -1,5 +1,6 @@
 import abc
-from cdocs.contextual_docs import Doc, FilePath
+import os.path
+from .contextual_docs import Doc, FilePath
 from cdocs.reader import Reader, ReadMetaData
 import logging
 
@@ -11,8 +12,12 @@ class SimpleReader(Reader):
             with open(filepath) as f:
                 return Doc(f.read())
         except FileNotFoundError as fnfe:
-            logging.error(f'SimpleReader.read: cannot read: {fnfe}')
-            raise DocNotFoundException(f"unreadable path: {filepath}")
+            logging.warning(f'SimpleReader.read: cannot read: {fnfe}')
+            # raise error?
+            return None
 
+
+    def is_available(self, filepath:FilePath, meta:ReadMetaData=None) -> bool:
+        return os.path.isfile(filepath)
 
 

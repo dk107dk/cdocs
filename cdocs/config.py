@@ -1,6 +1,6 @@
-from configparser import ConfigParser
+from configparser import ConfigParser, NoSectionError
 import os
-from typing import Optional
+from typing import Optional, List, Tuple
 import logging
 
 
@@ -21,11 +21,24 @@ class Config:
             val = default
         return val
 
-    def get(self, group, name) -> str:
+    def get_config_path(self):
+        return self._path
+
+    def get(self, group:str, name:str) -> str:
         try:
             return self._parser.get(group, name)
         except Exception as e:
-            logging.warn(f"Cdocs Config.get: unable to get [{group}][{name}]: {e}. returning None.")
+            logging.warning(f"Cdocs Config.get: unable to get [{group}][{name}]: {e}. returning None.")
             return None
 
+    def get_items(self, group:str, exceptnot:List[str]=None) -> List[Tuple[str, str]]:
+        items = None
+        try:
+            items = self._parser.items(group)
+        except (KeyError, NoSectionError):
+            logging.warning("Cdocs Config.get_items: no such group {group}. returning [].")
+            items = []
+        if exceptnot is not None:
+            items = [ _ for _ in items if _[0] not in exceptnot]
+        return items
 

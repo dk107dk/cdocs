@@ -1,3 +1,0 @@
-/app/home/teams/todos/assignee#new_assignee
-/app/home/teams/todos/assignee#edit_assignee
-
