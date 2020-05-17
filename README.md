@@ -9,7 +9,7 @@ Cdocs stores documentation as text files in a directory tree. Files are Jinja te
 
 Cdocs can also be used to find text strings referred to as labels. Labels are stored as (non-template) json files containing dict in the same directory tree. The expected use is to find a JSON structure of labels for UI elements that would be seen in the same screen contextual help is available for.
 
-Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
+Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win.
 
 Docs are stored in directory trees. You may configure as many trees as is useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. Each root is self-contained, meaning that labels and tokens used in doc file transformations are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels return labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
 
