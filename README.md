@@ -11,23 +11,26 @@ Cdocs can also be used to find text strings referred to as labels. Labels are st
 
 Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win.
 
-Docs are stored in directory trees. You may configure as many trees as is useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. Each root is self-contained, meaning that labels and tokens used in doc file transformations are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels return labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
+You may configure as many docs directory trees as you find useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. You may limit each directory tree to certain file types. Each root is self-contained, meaning that labels and tokens used in doc file transformations are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels return labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
 
 Use a *config.ini* to set the root directories, file extension, etc. The default location for the config file is ```os.getcwd()/config/config.ini```. You can pass a different path in the Cdocs constructor. The contents should be similar to this:
 ```
 # docs section lists the doc directory roots. use as many as you need.
 [docs]
- public = /Users/davidkershaw/dev/cdocs/docs/example
- internal = /Users/davidkershaw/dev/cdocs/docs/internal
+   public = /Users/davidkershaw/dev/cdocs/docs/example
+   internal = /Users/davidkershaw/dev/cdocs/docs/internal
+[accepts]
+   public = cdocs
+   internal = gif,png,jpeg
 # format section currently only used to indicate the extension of files found using /x/y/z paths
 [formats]
- ext = xml
+   ext = xml
 # filenames section lets you change the names of the tokens and labels files, set the name anchor char (hashmark), and the on the fly concatination char (plus)
 [filenames]
- tokens = tokens.json
- labels = labels.json
- hashmark = #
- plus = +
+   tokens = tokens.json
+   labels = labels.json
+   hashmark = #
+   plus = +
 ```
 
 Cdocs has several ways of getting content:

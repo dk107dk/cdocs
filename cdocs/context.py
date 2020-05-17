@@ -15,6 +15,24 @@ class ContextMetaData(object):
         self._roots:List[str] = [ _[1] for _ in self.config.get_items("docs")]
         self._keyed_roots = { _[0]:_[1] for _ in self.config.get_items("docs")}
         self._root_names = [ _[0] for _ in self.config.get_items("docs")]
+        self._accepts = {_[0]:[s for s in _[1].split(",")] for _ in self.config.get_items("accepts")}
+        self._accepted_by = dict()
+        for k in self._accepts:
+            v = self._accepts[k]
+            for av in v:
+                acceptors = self._accepted_by.get(av)
+                if acceptors is None:
+                    acceptors = []
+                acceptors.append(k)
+                self._accepted_by[av] = acceptors
+
+    @property
+    def accepted_by(self) -> Dict[str,List[str]]:
+        return self._accepted_by
+
+    @property
+    def accepts(self) -> Dict[str,List[str]]:
+        return self._accepts
 
     @property
     def roots(self) -> List[FilePath]:
@@ -73,14 +91,48 @@ class Context(ContextualDocs, MultiContextDocs):
 
     # ==== MultiContextDocs ==================
 
+    def get_filetype( self, path:DocPath) -> str:
+        filetype = ''
+        if path.find('/') == -1:
+            filetype = 'cdocs'
+        else:
+            last = path.rindex('/')
+            if last == -1:
+                filetype = 'cdocs'
+            else:
+                filename = path[last:]
+                ext = filename.find('.')
+                if ext == -1:
+                    filetype = 'cdocs'
+                else:
+                    filetype = filename[ext+1:]
+        return filetype
+
+    def get_root_names_accepting_path( self, path:DocPath) -> List[str]:
+        filetype = self.get_filetype(path)
+        l = self.metadata.accepted_by.get(filetype)
+        if l is None:
+            l = []
+        return l
+
+    def filter_root_names_for_path(self, roots:List[str], path:DocPath) -> List[str]:
+        filetype = self.get_filetype(path)
+        aroots = self.metadata.accepted_by.get(filetype)
+        filtered = [item for item in roots if item in aroots]
+        if roots != filtered:
+            logging.warning("Context.get_labels_from_roots: filtered {roots} to {filtered}")
+        return filtered
+
     def get_labels_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
         labels = {}
+        rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
             labels = { **cdocs.get_labels(path), **labels }
         return labels
 
     def get_compose_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+        rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
             doc = cdocs.get_compose_doc(path)
@@ -88,6 +140,7 @@ class Context(ContextualDocs, MultiContextDocs):
                 return doc
 
     def get_concat_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+        rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
             doc = cdocs.get_concat_doc(path)
@@ -95,6 +148,7 @@ class Context(ContextualDocs, MultiContextDocs):
                 return doc
 
     def get_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+        rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
             doc = cdocs.get_doc(path)
