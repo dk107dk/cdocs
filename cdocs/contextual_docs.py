@@ -12,7 +12,7 @@ Doc = NewType('Doc', str)
 DocPath = NewType('DocPath', str)
 
 # FilePath is the actual physical file path that contains Doc
-# content. FilePath are for internal use only.
+# content.
 FilePath = NewType('FilePath', str)
 
 # JsonDict is a dict with string keys with either a
@@ -21,14 +21,6 @@ FilePath = NewType('FilePath', str)
 # ContextualDocs.get_doc. JsonDict are for tokens and labels.
 # Only tokens JsonDict have callable members.
 JsonDict = NewType('JsonDict', Dict[str, Union[str,Callable[[str],str]]])
-
-# DocVersion is a string indicating a revision of the docs
-# in the public and internal trees
-DocsVersion = NewType('DocsVersion', str)
-
-# DocsName is the name of the corpus. A corpus named by DocsName
-# has an impied or explicit DocVersion.
-DocsName = NewType('DocsName', str)
 
 
 class ContextualDocs(metaclass=abc.ABCMeta):

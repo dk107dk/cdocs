@@ -1,13 +1,13 @@
 import abc
 import os.path
 from .contextual_docs import Doc, FilePath
-from cdocs.reader import Reader, ReadMetaData
+from cdocs.reader import Reader
 import logging
 
 
 class SimpleReader(Reader):
 
-    def read(self, filepath:FilePath, meta:ReadMetaData=None) -> Doc:
+    def read(self, filepath:FilePath) -> Doc:
         try:
             with open(filepath) as f:
                 return Doc(f.read())
@@ -17,7 +17,7 @@ class SimpleReader(Reader):
             return None
 
 
-    def is_available(self, filepath:FilePath, meta:ReadMetaData=None) -> bool:
+    def is_available(self, filepath:FilePath) -> bool:
         return os.path.isfile(filepath)
 
 

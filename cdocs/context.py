@@ -17,7 +17,7 @@ class ContextMetaData(object):
         self._root_names = [ _[0] for _ in self.config.get_items("docs")]
 
     @property
-    def roots(self) -> List[str]:
+    def roots(self) -> List[FilePath]:
         return self._roots
 
     @property
@@ -25,7 +25,7 @@ class ContextMetaData(object):
         return self._root_names
 
     @property
-    def keyed_roots(self) -> Dict[str,str]:
+    def keyed_roots(self) -> Dict[str,FilePath]:
         return self._keyed_roots
 
     @property

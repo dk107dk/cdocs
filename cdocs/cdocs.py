@@ -167,7 +167,7 @@ hash: {self._hashmark}, plus: {self._plus}")
         available = self._reader.is_available(path)
         logging.info(f"Cdocs._read_doc: {available}")
         if available:
-            content = self._reader.read(path, None)
+            content = self._reader.read(path)
             if content is None:
                 logging.warning(f"Cdocs._read_doc: cannot read {path}. returning None.")
         else:

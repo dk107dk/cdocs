@@ -3,6 +3,12 @@ from cdocs.reader import Reader
 from cdocs.finder import Finder
 
 class Physical(object):
+    """
+    Physical (along with Config, a subclass of Physical) knows
+    which classes should be used to find and read files. The
+    default reader, finder, pather and config classes work from
+    the local filesystem.
+    """
 
     def __init__(self):
         self._reader:Reader = None

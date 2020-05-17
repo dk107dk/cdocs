@@ -3,6 +3,9 @@ from typing import Optional, List, Tuple
 from cdocs.physical import Physical
 
 class Config(Physical, metaclass=abc.ABCMeta):
+    """
+    Config is a sectioned key-value store interface that follows configparser
+    """
 
     @abc.abstractmethod
     def get_with_default(self, group:str, name:str, default:Optional[str]=None) -> str:
