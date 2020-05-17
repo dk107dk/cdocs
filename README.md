@@ -3,7 +3,7 @@
 
 **Cdocs** is intended to help manage files for use in contextual help systems. The library knows how to find docs given a path. Paths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
-The expected use of Cdocs is to create an endpoint to retrieve docs from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system; however, that is not its intended use.
+The expected use of Cdocs is to create an endpoint to retrieve in-context help docs from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system; however, that is not its intended use.
 
 Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
@@ -11,15 +11,18 @@ Cdocs can also be used to find text strings referred to as labels. Labels are st
 
 Requests for labels and tokens are aggregated from every directory below root, starting from the requested path.  The values found lowest in the directory tree win. Public values win over internal values.
 
-Docs are stored in directory trees. You may configure as many trees as is useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. Each root is self-contained, meaning that labels and tokens are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels returns labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
+Docs are stored in directory trees. You may configure as many trees as is useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. Each root is self-contained, meaning that labels and tokens used in doc file transformations are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels return labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
 
 Use a *config.ini* to set the root directories, file extension, etc. The default location for the config file is ```os.getcwd()/config/config.ini```. You can pass a different path in the Cdocs constructor. The contents should be similar to this:
 ```
+# docs section lists the doc directory roots. use as many as you need.
 [docs]
  public = /Users/davidkershaw/dev/cdocs/docs/example
  internal = /Users/davidkershaw/dev/cdocs/docs/internal
+# format section currently only used to indicate the extension of files found using /x/y/z paths
 [formats]
  ext = xml
+# filenames section lets you change the names of the tokens and labels files, set the name anchor char (hashmark), and the on the fly concatination char (plus)
 [filenames]
  tokens = tokens.json
  labels = labels.json
@@ -62,7 +65,7 @@ Flask won't have access to an anchor appended to a URL by a hashmark. (E.g. ```h
  hashmark = *
 ```
 
-The same endpoint using all of multiple docs directory trees configured in context.ini might look like:
+The same endpoint using all of a set of docs directory trees configured in config.ini might look like:
 ```
 app = Flask(__name__)
 api = Api(app)
