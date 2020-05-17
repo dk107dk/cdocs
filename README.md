@@ -55,7 +55,7 @@ app = Flask(__name__)
 api = Api(app)
 @app.route('/cdocs/&lt;path:cdocspath&gt;')
 def cdocs(cdocspath:str):
-     cdocs = Cdocs()
+     cdocs = Cdocs(PATH)
      return cdocs.get_doc(cdocspath)
 ```
 
