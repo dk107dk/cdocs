@@ -1,17 +1,16 @@
-import os
-import json
-from pathlib import Path
 from typing import Optional, List, Dict
 from jinja2 import Template
 import logging
-from cdocs.config import Config
-from cdocs.dict_finder import DictFinder
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDocs
-from cdocs.simple_reader import SimpleReader
-from cdocs.simple_pather import SimplePather
+from cdocs.config import Config
 from cdocs.pather import Pather
 from cdocs.reader import Reader
-
+from cdocs.finder import Finder
+from cdocs.simple_config import SimpleConfig
+from cdocs.simple_reader import SimpleReader
+from cdocs.simple_pather import SimplePather
+from cdocs.simple_finder import SimpleFinder
+from cdocs.physical import Physical
 
 class DocNotFoundException(Exception):
     pass
@@ -23,10 +22,11 @@ class ComposeDocException(Exception):
     pass
 
 
-class Cdocs(ContextualDocs):
+class Cdocs(ContextualDocs, Physical):
 
     def __init__(self, docspath:str, config:Optional[Config]=None):
-        cfg = Config(None) if config is None else config
+        super().__init__()
+        cfg = SimpleConfig(None) if config is None else config
         self._config = cfg
         self._docs_path:str = docspath
         self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
@@ -34,27 +34,13 @@ class Cdocs(ContextualDocs):
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
-        self._reader:Reader = SimpleReader()
-        self._pather:Pather = SimplePather(self._docs_path, cfg.get_config_path())
+        self.reader = SimpleReader() if cfg.reader is None else cfg.reader
+        self.finder = SimpleFinder(docspath) if cfg.finder is None else cfg.finder
+        self.pather = SimplePather(self._docs_path, cfg.get_config_path()) if cfg.pather is None else cfg.pather
         logging.info(f"Cdocs.__init__: path: {self._docs_path}, ext: {self._ext}, \
 tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
 hash: {self._hashmark}, plus: {self._plus}")
 
-    @property
-    def reader(self) -> Reader:
-        return self._reader
-
-    @reader.setter
-    def reader(self, reader:Reader) -> None:
-        self._reader = reader
-
-    @property
-    def pather(self) -> Pather:
-        return self._pather
-
-    @pather.setter
-    def pather(self, pather:Pather) -> None:
-        self._pather = pather
 
     def get_doc_root(self) -> FilePath:
         return FilePath(self._docs_path)
@@ -192,8 +178,7 @@ hash: {self._hashmark}, plus: {self._plus}")
     def _get_dict(self, path:str, filename:str) -> JsonDict:
         path = path.strip('/\\')
         docroot = self.get_doc_root()
-        tf = DictFinder(docroot, path, filename)
-        return JsonDict(tf.get_tokens())
+        return JsonDict(self.finder.find_tokens(path, filename))
 
 
 

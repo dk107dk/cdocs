@@ -2,6 +2,7 @@ import abc
 from typing import Optional, List, Dict
 import logging
 from cdocs.config import Config
+from cdocs.simple_config import SimpleConfig
 from cdocs.cdocs import Cdocs
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDocs
 from cdocs.multi_context_docs import MultiContextDocs
@@ -9,8 +10,8 @@ from cdocs.multi_context_docs import MultiContextDocs
 
 class ContextMetaData(object):
 
-    def __init__(self, config:Optional[FilePath]=None):
-        self._config = Config(config)
+    def __init__(self, config:Optional[Config]=None):
+        self._config = SimpleConfig() if config is None else config
         self._roots:List[str] = [ _[1] for _ in self.config.get_items("docs")]
         self._keyed_roots = { _[0]:_[1] for _ in self.config.get_items("docs")}
         self._root_names = [ _[0] for _ in self.config.get_items("docs")]

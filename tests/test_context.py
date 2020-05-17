@@ -1,5 +1,4 @@
 from cdocs.cdocs import Cdocs, DocNotFoundException, BadDocPath
-from cdocs.config import Config
 from cdocs.context import ContextMetaData, Context
 import unittest
 import os

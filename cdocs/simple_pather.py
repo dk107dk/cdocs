@@ -1,14 +1,14 @@
 import os
 import logging
 from cdocs.contextual_docs import DocPath, FilePath
-from cdocs.config import Config
+from cdocs.simple_config import SimpleConfig
 from cdocs.pather import Pather
 from typing import Optional
 
 class SimplePather(Pather):
 
     def __init__(self, docspath:FilePath, config:FilePath=None):
-        cfg = Config(None) if config is None else Config(config)
+        cfg = SimpleConfig(config)
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._docs_path:str = docspath
         self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
