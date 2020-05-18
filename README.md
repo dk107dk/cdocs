@@ -13,6 +13,8 @@ Requests for labels and tokens are aggregated from every directory below root, s
 
 You may configure as many docs directory trees as you find useful. Multi tree requests go against a Context object that implements the MultiContextDocs ABC and returns docs by searching the trees in the order they appear in config.ini. You may limit each directory tree to certain file types. Each root is self-contained, meaning that labels and tokens used in doc file transformations are found and applied only within their directory tree, and that the paths found in concat and compose files are resolved only in the same tree. However, multi-context requests for labels return labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
 
+Cdocs will return binary files based on a limited set of known file types. Currently the types are 'gif', 'jpeg', 'jpg', 'png', 'pdf'.
+
 Use a *config.ini* to set the root directories, file extension, etc. The default location for the config file is ```os.getcwd()/config/config.ini```. You can pass a different path in the Cdocs constructor. The contents should be similar to this:
 ```
 # docs section lists the doc directory roots. use as many as you need.
