@@ -10,6 +10,10 @@ class MultiContextDocs(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
+    def get_root_names_accepting_path(self, path:DocPath) -> List[str]:
+        pass
+
+    @abc.abstractmethod
     def get_concat_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
         pass
 

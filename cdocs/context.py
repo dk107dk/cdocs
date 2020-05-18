@@ -3,6 +3,7 @@ from typing import Optional, List, Dict
 import logging
 from cdocs.config import Config
 from cdocs.simple_config import SimpleConfig
+from cdocs.simple_filer import SimpleFiler
 from cdocs.cdocs import Cdocs
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDocs
 from cdocs.multi_context_docs import MultiContextDocs
@@ -92,21 +93,7 @@ class Context(ContextualDocs, MultiContextDocs):
     # ==== MultiContextDocs ==================
 
     def get_filetype( self, path:DocPath) -> str:
-        filetype = ''
-        if path.find('/') == -1:
-            filetype = 'cdocs'
-        else:
-            last = path.rindex('/')
-            if last == -1:
-                filetype = 'cdocs'
-            else:
-                filename = path[last:]
-                ext = filename.find('.')
-                if ext == -1:
-                    filetype = 'cdocs'
-                else:
-                    filetype = filename[ext+1:]
-        return filetype
+        return SimpleFiler().get_filetype(path)
 
     def get_root_names_accepting_path( self, path:DocPath) -> List[str]:
         filetype = self.get_filetype(path)

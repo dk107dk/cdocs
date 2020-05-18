@@ -9,8 +9,10 @@ class SimpleReader(Reader):
 
     def read(self, filepath:FilePath) -> Doc:
         try:
-            with open(filepath) as f:
-                return Doc(f.read())
+            with open(filepath, 'rb') as f:
+                doc = Doc(f.read())
+                #print(f"SimpleReader.read: doc is {doc} of type {type(doc)}")
+                return doc
         except FileNotFoundError as fnfe:
             logging.warning(f'SimpleReader.read: cannot read: {fnfe}')
             # raise error?

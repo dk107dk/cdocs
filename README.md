@@ -19,6 +19,7 @@ Use a *config.ini* to set the root directories, file extension, etc. The default
 [docs]
    public = /Users/davidkershaw/dev/cdocs/docs/example
    internal = /Users/davidkershaw/dev/cdocs/docs/internal
+# accepts limits the file types handled by each root. root names passed to the context will be filtered according to this list.
 [accepts]
    public = cdocs
    internal = gif,png,jpeg

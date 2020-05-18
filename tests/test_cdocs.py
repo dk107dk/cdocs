@@ -31,7 +31,7 @@ class CdocsTests(unittest.TestCase):
         self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
         print(f"test_get_doc: doing get_docs. the doc txt is: {txt}")
         point = txt.find("assignee in company starstruck!")
-        self.assertNotEqual(-1,point, msg="must include 'assignee in company starstruck!'")
+        self.assertNotEqual(-1,point, msg=f"txt: {txt} must include 'assignee in company starstruck!'")
         point = txt.find("my app name: you should see: my app's name is fruit")
         self.assertNotEqual(-1,point, msg="must include 'my app name: you should see: my app's name is fruit'")
 

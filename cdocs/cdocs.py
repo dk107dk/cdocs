@@ -10,6 +10,7 @@ from cdocs.simple_config import SimpleConfig
 from cdocs.simple_reader import SimpleReader
 from cdocs.simple_pather import SimplePather
 from cdocs.simple_finder import SimpleFinder
+from cdocs.simple_filer import SimpleFiler
 from cdocs.physical import Physical
 
 class DocNotFoundException(Exception):
@@ -30,6 +31,7 @@ class Cdocs(ContextualDocs, Physical):
         self._config = cfg
         self._docs_path:str = docspath
         self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
+        self._filer = SimpleFiler()
         self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
@@ -47,6 +49,14 @@ hash: {self._hashmark}, plus: {self._plus}")
 
     def get_tokens(self, path:DocPath) -> JsonDict:
         return self._get_dict(path, self._tokens_filename)
+
+    @property
+    def filer(self):
+        return self._filer
+
+# ===================
+# abc methods
+# ===================
 
     def get_labels(self, path:DocPath) -> JsonDict:
         labels = self._get_dict(path, self._labels_filename)
@@ -80,10 +90,15 @@ hash: {self._hashmark}, plus: {self._plus}")
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.') > -1:
-            raise BadDocPath("dots are not allowed in doc paths")
+            if self.filer.get_filetype(path) == 'cdocs':
+                raise BadDocPath("dots are not allowed in cdoc paths")
         pluspaths = self._get_plus_paths(path)
         root = self.get_doc_root()
         return self._get_doc_for_root(path, pluspaths, root)
+
+# ===================
+# internal methods
+# ===================
 
     def _get_doc_for_root(self, path:DocPath, pluspaths:List[DocPath], root:FilePath) -> Doc:
         if len(pluspaths) > 0:
@@ -102,20 +117,25 @@ hash: {self._hashmark}, plus: {self._plus}")
         ls = { k:self._transform(v, path, tokens, False) for k,v in labels.items() }
         return JsonDict(ls)
 
-    def _transform(self, content:str, path:Optional[str]=None, tokens:Optional[Dict[str,str]]=None, transform_labels=True) -> str:
+    def _transform(self, content:str, path:DocPath=None, tokens:Optional[Dict[str,str]]=None, transform_labels=True) -> str:
         if content is None:
             logging.info("Cdocs._transform: cannot transform None. returning ''")
             return None
-        if tokens is None and path is None:
-            print(f"Warning: _transform with no path and no tokens")
-            tokens = {}
-        elif tokens is None:
-            tokens:JsonDict = self.get_tokens(path)
-        if path is not None and transform_labels:
-            tokens = self._add_labels_to_tokens(path, tokens)
-        tokens["get_doc"] = self.get_doc
-        template = Template(content)
-        return template.render(tokens)
+        if path is None:
+            raise BadDocPath("you must provide the DocPath")
+        filetype = self.filer.get_filetype(path)
+        if filetype in ['html','concat','cdocs']:
+            if tokens is None:
+                tokens:JsonDict = self.get_tokens(path)
+            if path is not None and transform_labels:
+                tokens = self._add_labels_to_tokens(path, tokens)
+            tokens["get_doc"] = self.get_doc
+            try:
+                template = Template(content)
+                content = template.render(tokens)
+            except Exception as e:
+                logging.info(f"couldn't transform content: {e}")
+        return content
 
     def _add_labels_to_tokens(self, path:DocPath, tokens:JsonDict) -> JsonDict:
         apath = path
@@ -167,7 +187,15 @@ hash: {self._hashmark}, plus: {self._plus}")
         available = self._reader.is_available(path)
         logging.info(f"Cdocs._read_doc: {available}")
         if available:
-            content = self._reader.read(path)
+            content = self.reader.read(path)
+            #
+            #
+            #
+            if self.filer.is_probably_not_binary(path):
+                content = content.decode('utf-8')
+            #
+            #
+            #
             if content is None:
                 logging.warning(f"Cdocs._read_doc: cannot read {path}. returning None.")
         else:

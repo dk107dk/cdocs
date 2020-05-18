@@ -84,6 +84,16 @@ class ContextTests(unittest.TestCase):
         cdocs = context.cdocs
         self.assertEqual( len(cdocs), 3, msg="must be 3 cdocs" )
 
+    def test_get_known_type_doc(self):
+        print(f"ContextTests.test_get_known_type_doc")
+        metadata = ContextMetaData()
+        context = Context(metadata)
+        docpath = "/app/home/teams/3-copy.png"
+        f = context.get_doc(docpath)
+        print(f"the image doc {type(f)} ")
+        self.assertIsNotNone(f, msg=f"doc at {docpath} must not be none")
+        self.assertEqual( type(f).__name__, 'bytes', msg=f"type must be 'bytes'")
+
     def test_get_doc(self) :
         print(f"ContextTests.test_get_doc")
         metadata = ContextMetaData()
