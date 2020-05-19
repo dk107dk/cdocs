@@ -54,6 +54,10 @@ hash: {self._hashmark}, plus: {self._plus}")
     def filer(self):
         return self._filer
 
+    @property
+    def config(self):
+        return self._config
+
 # ===================
 # abc methods
 # ===================
@@ -87,6 +91,9 @@ hash: {self._hashmark}, plus: {self._plus}")
         return Doc(content)
 
     def get_doc(self, path:DocPath) -> Doc:
+        return self._get_doc(path, True)
+
+    def _get_doc(self, path:DocPath, notfound:Optional[bool]=False) -> Optional[Doc]:
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.') > -1:
@@ -94,17 +101,34 @@ hash: {self._hashmark}, plus: {self._plus}")
                 raise BadDocPath("dots are not allowed in cdoc paths")
         pluspaths = self._get_plus_paths(path)
         root = self.get_doc_root()
-        return self._get_doc_for_root(path, pluspaths, root)
+        doc = self._get_doc_for_root(path, pluspaths, root)
+        if doc is None and notfound:
+           doc = self.get_404()
+        return doc
 
 # ===================
 # internal methods
 # ===================
+
+    def get_404(self) -> Optional[Doc]:
+        config = self.config
+        _404 = config.get_with_default("defaults", "notfound", None)
+        if _404 is None:
+            return None
+        index = _404.find("/")
+        root = _404[0:index]
+        path = _404[index+1:]
+        root = config.get("docs", root)
+        cdocs = Cdocs(root)
+        doc = cdocs._get_doc_for_root(path, [], root)
+        return doc
 
     def _get_doc_for_root(self, path:DocPath, pluspaths:List[DocPath], root:FilePath) -> Doc:
         if len(pluspaths) > 0:
             plus = path.find(self._plus)
             path = path[0:plus]
         filepath = self._pather.get_full_file_path_for_root(path, root)
+        print(f"_get_doc_for_root: {filepath}")
         content = self._read_doc(filepath)
         content = self._transform(content, path, None, True)
         if len(pluspaths) > 0:

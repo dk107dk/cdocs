@@ -35,6 +35,18 @@ class CdocsTests(unittest.TestCase):
         point = txt.find("my app name: you should see: my app's name is fruit")
         self.assertNotEqual(-1,point, msg="must include 'my app name: you should see: my app's name is fruit'")
 
+    def test_get_doc_not_found(self) :
+        print(f"CdocsTests.test_get_doc_not_found")
+        docpath = "/app/home/teams/todos/assignee/fish"
+        cdocs = Cdocs(PATH)
+        txt = cdocs.get_doc(docpath)
+        print(f"test_get_doc_not_found: the doc found is: {txt}")
+        self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
+        print(f"test_get_doc_not_found: doing get_docs. the doc txt is: {txt}")
+        point = txt.find("Not found!")
+        self.assertNotEqual(-1,point, msg=f"txt: {txt} must include 'Not found!'")
+
+
     def test_add_labels_to_tokens(self):
         print(f"CdocsTests.test_add_labels_to_tokens")
         docpath = "/app/home/teams/todos/assignee#new_assignee"

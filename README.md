@@ -25,6 +25,9 @@ Use a *config.ini* to set the root directories, file extension, etc. The default
 [accepts]
    public = cdocs
    internal = gif,png,jpeg
+# you can configure defaults to point to a file to return if a doc is not found. if not configured, the response to a path that doesn't exist is None.
+[defaults]
+   notfound = internal/404
 # format section currently only used to indicate the extension of files found using /x/y/z paths
 [formats]
    ext = xml
@@ -86,8 +89,6 @@ An endpoint implementation might want to search certain trees based on the local
 ### TODO:
 - Configure a transformer for default and #name docs. (And concat and compose?) E.g. to automatically transform xml > md, md > html, etc.
 - Think about if concat and compose docs should be transformed before being included in the other type. e.g. if /x/y/z/concat.txt included /x/compose.html then compose.html would be rendered before being concatenated.
-- Create methods for retrieving binary docs, maybe by declaring a root to not support transforms
-- Allow tagging a root with file types that can be requested
 
 
 
