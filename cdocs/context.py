@@ -61,7 +61,7 @@ class Context(ContextualDocs, MultiContextDocs):
     """
     def __init__(self, metadata:ContextMetaData):
         self._metadata = metadata
-        self._keyed_cdocs = { k : Cdocs(v, metadata.config) for k,v in metadata.keyed_roots.items() }
+        self._keyed_cdocs = { k : Cdocs(v, metadata.config, self) for k,v in metadata.keyed_roots.items() }
         self._cdocs = [ v for k,v in self.keyed_cdocs.items() ]
 
     @property
@@ -107,7 +107,7 @@ class Context(ContextualDocs, MultiContextDocs):
         aroots = self.metadata.accepted_by.get(filetype)
         filtered = [item for item in roots if item in aroots]
         if roots != filtered:
-            logging.warning("Context.get_labels_from_roots: filtered {roots} to {filtered}")
+            logging.info(f"Context.get_labels_from_roots: filtered {roots} to {filtered}")
         return filtered
 
     def get_labels_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:

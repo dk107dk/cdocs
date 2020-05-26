@@ -14,18 +14,16 @@ class SimpleFiler(Filer):
             filetype = 'cdocs'
         else:
             last = path.rindex('/')
-            if last == -1:
+            filename = path[last:]
+            ext = filename.find('.')
+            if ext == -1:
                 filetype = 'cdocs'
             else:
-                filename = path[last:]
-                ext = filename.find('.')
-                if ext == -1:
-                    filetype = 'cdocs'
-                else:
-                    filetype = filename[ext+1:]
+                filetype = filename[ext+1:]
         return filetype
 
     def is_probably_not_binary(self, path:Union[DocPath,FilePath] ) -> bool:
+        # todo: this method could be more sophisticated
         filetype = self.get_filetype(path)
         return filetype not in self._binary
 

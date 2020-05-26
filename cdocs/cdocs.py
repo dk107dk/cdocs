@@ -12,6 +12,8 @@ from cdocs.simple_pather import SimplePather
 from cdocs.simple_finder import SimpleFinder
 from cdocs.simple_filer import SimpleFiler
 from cdocs.physical import Physical
+from cdocs.multi_context_docs import MultiContextDocs
+
 
 class DocNotFoundException(Exception):
     pass
@@ -25,11 +27,12 @@ class ComposeDocException(Exception):
 
 class Cdocs(ContextualDocs, Physical):
 
-    def __init__(self, docspath:str, config:Optional[Config]=None):
+    def __init__(self, docspath:str, config:Optional[Config]=None, context:Optional[MultiContextDocs]=None):
         super().__init__()
+        self._context:MultiContextDocs = context
         cfg = SimpleConfig(None) if config is None else config
         self._config = cfg
-        self._docs_path:str = docspath
+        self._docs_path:FilePath = docspath
         self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
         self._filer = SimpleFiler()
         self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
@@ -43,12 +46,19 @@ class Cdocs(ContextualDocs, Physical):
 tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
 hash: {self._hashmark}, plus: {self._plus}")
 
-
     def get_doc_root(self) -> FilePath:
         return FilePath(self._docs_path)
 
     def get_tokens(self, path:DocPath) -> JsonDict:
         return self._get_dict(path, self._tokens_filename)
+
+    @property
+    def context(self) -> MultiContextDocs:
+        return self._context
+
+    @context.setter
+    def context(self, ctx:MultiContextDocs) -> None:
+        self._context = ctx
 
     @property
     def filer(self):
@@ -128,7 +138,6 @@ hash: {self._hashmark}, plus: {self._plus}")
             plus = path.find(self._plus)
             path = path[0:plus]
         filepath = self._pather.get_full_file_path_for_root(path, root)
-        print(f"_get_doc_for_root: {filepath}")
         content = self._read_doc(filepath)
         content = self._transform(content, path, None, True)
         if len(pluspaths) > 0:
@@ -148,12 +157,22 @@ hash: {self._hashmark}, plus: {self._plus}")
         if path is None:
             raise BadDocPath("you must provide the DocPath")
         filetype = self.filer.get_filetype(path)
-        if filetype in ['html','concat','cdocs']:
+        # more filetypes could go here, but for now this is good.
+        # todo: make this list a config option?
+        if filetype in ['html','concat','cdocs','xml','md','txt','xhtml','yaml','json','js']:
             if tokens is None:
                 tokens:JsonDict = self.get_tokens(path)
             if path is not None and transform_labels:
                 tokens = self._add_labels_to_tokens(path, tokens)
             tokens["get_doc"] = self.get_doc
+            tokens["get_compose_doc"] = self.get_compose_doc
+            tokens["get_concat_doc"] = self.get_concat_doc
+            if self.context is not None:
+                tokens["get_concat_doc_from_roots"] = self.context.get_concat_doc_from_roots
+                tokens["get_compose_doc_from_roots"] = self.context.get_compose_doc_from_roots
+                tokens["get_doc_from_roots"] = self.context.get_doc_from_roots
+                tokens["get_labels_from_roots"] = self.context.get_labels_from_roots
+                logging.info("Cdocs._transform: added multi root methods on context to template tokens")
             try:
                 template = Template(content)
                 content = template.render(tokens)
@@ -212,14 +231,8 @@ hash: {self._hashmark}, plus: {self._plus}")
         logging.info(f"Cdocs._read_doc: {available}")
         if available:
             content = self.reader.read(path)
-            #
-            #
-            #
             if self.filer.is_probably_not_binary(path):
                 content = content.decode('utf-8')
-            #
-            #
-            #
             if content is None:
                 logging.warning(f"Cdocs._read_doc: cannot read {path}. returning None.")
         else:

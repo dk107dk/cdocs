@@ -5,17 +5,22 @@ import os
 
 class ContextTests(unittest.TestCase):
 
+    noise = False
+    def _print(self, text:str) -> None:
+        if self.noise:
+            print(text)
+
     def test_roots(self):
-        print("ContextTests.test_roots")
+        self._print("ContextTests.test_roots")
         metadata = ContextMetaData()
         roots = metadata.roots
         self.assertEqual( len(roots), 3, msg="must be 3 roots" )
 
     def test_accepts(self):
-        print("ContextTests.test_accepts")
+        self._print("ContextTests.test_accepts")
         metadata = ContextMetaData()
         accepts = metadata.accepts
-        print(f"accepts: {accepts}")
+        if self.noise: self._print(f"accepts: {accepts}")
         self.assertIsNotNone( accepts, msg="accepts must not be None")
         self.assertEqual(len(accepts), 3, msg="must be 3 keys in accepts")
         self.assertIsNotNone( accepts["images"], msg="accepts must have an 'images' key")
@@ -27,10 +32,10 @@ class ContextTests(unittest.TestCase):
         self.assertIn("jpeg", images, msg=f"images must include item 'jpeg'")
 
     def test_accepted_by(self):
-        print("ContextTests.test_accepted_by")
+        self._print("ContextTests.test_accepted_by")
         metadata = ContextMetaData()
         accceptedby = metadata.accepted_by
-        print(f"accceptedby: {accceptedby}")
+        self._print(f"accceptedby: {accceptedby}")
         self.assertIsNotNone( accceptedby, msg="accceptedby must not be None")
         self.assertEqual(len(accceptedby), 5, msg="must be 5 keys in accceptedby")
         self.assertIsNotNone( accceptedby["cdocs"], msg="accepts must have a 'cdocs' key")
@@ -42,78 +47,78 @@ class ContextTests(unittest.TestCase):
         self.assertIn("images", gif, msg=f"gif must include item 'images'")
 
     def test_get_filetype(self):
-        print("ContextTests.test_get_filetype")
+        self._print("ContextTests.test_get_filetype")
         metadata = ContextMetaData()
         context = Context(metadata)
         atype = context.get_filetype("/x/y/z.gif")
-        print(f"type for /x/y/z.gif: {atype}")
+        self._print(f"type for /x/y/z.gif: {atype}")
         self.assertEqual(atype, "gif", msg="type must be gif")
         atype = context.get_filetype("/x/y/z")
-        print(f"type for /x/y/z: {atype}")
+        self._print(f"type for /x/y/z: {atype}")
         self.assertEqual(atype, 'cdocs', msg="type must be cdocs")
 
     def test_filter_root_names_for_path(self):
-        print("ContextTests.test_filter_root_names_for_path")
+        self._print("ContextTests.test_filter_root_names_for_path")
         metadata = ContextMetaData()
         context = Context(metadata)
         roots = ["images", "fish", "public"]
         rs = context.filter_root_names_for_path(roots, "/x/y/z")
-        print(f"filtered roots: {rs}")
+        self._print(f"filtered roots: {rs}")
         self.assertIsNotNone( rs, msg="filtered roots must not be None")
         self.assertEqual(len(rs), 1, msg="must be 1 filtered root")
         self.assertEqual(rs, ["public"], msg="filtered roots must be ['public']")
 
 
     def test_get_root_names_accepting_path(self):
-        print("ContextTests.test_get_root_names_accepting_path")
+        self._print("ContextTests.test_get_root_names_accepting_path")
         metadata = ContextMetaData()
         context = Context(metadata)
         gifs = context.get_root_names_accepting_path("/x/y/z.gif")
-        print(f"roots for /x/y/z.gif: {gifs}")
+        self._print(f"roots for /x/y/z.gif: {gifs}")
         self.assertIsNotNone( gifs, msg="gifs must not be None")
         self.assertEqual(len(gifs), 1, msg="must be 1 items in gifs")
         cdocs = context.get_root_names_accepting_path("/x/y/z")
-        print(f"roots for /x/y/z: {cdocs}")
+        self._print(f"roots for /x/y/z: {cdocs}")
         self.assertIsNotNone( cdocs, msg="cdocs must not be None")
         self.assertEqual(len(cdocs), 2, msg="must be 2 items in cdocs")
 
     def test_create_context(self):
-        print("ContextTests.test_context")
+        self._print("ContextTests.test_context")
         metadata = ContextMetaData()
         context = Context(metadata)
         cdocs = context.cdocs
         self.assertEqual( len(cdocs), 3, msg="must be 3 cdocs" )
 
     def test_get_known_type_doc(self):
-        print(f"ContextTests.test_get_known_type_doc")
+        self._print(f"ContextTests.test_get_known_type_doc")
         metadata = ContextMetaData()
         context = Context(metadata)
         docpath = "/app/home/teams/3-copy.png"
         f = context.get_doc(docpath)
-        print(f"the image doc {type(f)} ")
+        self._print(f"the image doc {type(f)} ")
         self.assertIsNotNone(f, msg=f"doc at {docpath} must not be none")
         self.assertEqual( type(f).__name__, 'bytes', msg=f"type must be 'bytes'")
 
     def test_get_doc(self) :
-        print(f"ContextTests.test_get_doc")
+        self._print(f"ContextTests.test_get_doc")
         metadata = ContextMetaData()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
         txt = context.get_doc(docpath)
         self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
-        print(f"test_get_doc: doing get_docs. the doc txt is: {txt}")
+        self._print(f"test_get_doc: doing get_docs. the doc txt is: {txt}")
         point = txt.find("assignee in company starstruck!")
         self.assertNotEqual(-1,point, msg="must include 'assignee in company starstruck!'")
         point = txt.find("my app name: you should see: my app's name is fruit")
         self.assertNotEqual(-1,point, msg="must include 'my app name: you should see: my app's name is fruit'")
 
     def test_get_labels(self):
-        print(f"ContextTests.test_get_labels")
+        self._print(f"ContextTests.test_get_labels")
         docpath = "/app/home/teams/todos/assignee"
         metadata = ContextMetaData()
         context = Context(metadata)
         labels = context.get_labels(docpath)
-        print(f"test_get_labels: the labels are: {labels}")
+        self._print(f"test_get_labels: the labels are: {labels}")
         self.assertIn("app", labels, msg=f"labels at {docpath} must include key 'app'")
         self.assertIn("team", labels, msg=f"labels at {docpath} must include key 'team'")
         self.assertIn("my_app_name", labels, msg=f"labels at {docpath} must include key 'my_app_name'")
@@ -121,7 +126,7 @@ class ContextTests(unittest.TestCase):
         self.assertEqual("starstruck", labels["company"], msg=f"label company must == starstruck")
 
     def test_get_doc_from_wrong_root(self) :
-        print(f"ContextTests.test_get_doc_from_wrong_root")
+        self._print(f"ContextTests.test_get_doc_from_wrong_root")
         metadata = ContextMetaData()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
@@ -129,10 +134,29 @@ class ContextTests(unittest.TestCase):
         self.assertIsNone(txt, msg=f"doc at {docpath} in root 'images' must be none")
 
     def test_get_doc_from_right_root(self) :
-        print(f"ContextTests.test_get_doc_from_right_root")
+        self._print(f"ContextTests.test_get_doc_from_right_root")
         metadata = ContextMetaData()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
         txt = context.get_doc_from_roots(["public"], docpath)
-        self.assertIsNotNone(txt, msg=f"doc at {docpath} in root 'public' must be none")
+        self.assertIsNotNone(txt, msg=f"doc at {docpath} in root 'public' must not be none")
+
+
+    def test_get_compose_doc_with_roots(self):
+        self._print(f"ContextTests.test_get_compose_doc_with_roots")
+        docpath = "/app/home/teams"
+        metadata = ContextMetaData()
+        context = Context(metadata)
+        doc = context.get_doc_from_roots(["internal"], docpath)
+        print(f"test_get_compose_doc_with_roots: doc from 'internal': {doc}")
+        assignee = doc.find('assignee in company starstruck!')
+        self.assertNotEqual(-1, assignee, msg=f'{docpath} must include "assignee in company starstruck!" in {doc}')
+        edit = doc.find('edit assignee')
+        self.assertNotEqual(-1, edit, msg=f'{docpath} must include "edit assignee" in {doc}')
+        doc = context.get_doc_from_roots(["public"], docpath)
+        print(f"test_get_compose_doc_with_roots: doc from 'public': {doc}")
+        notfound = doc.find("Not found!")
+        self.assertNotEqual(notfound, -1, msg=f'doc at {docpath} must include "Not found!"')
+
+
 
