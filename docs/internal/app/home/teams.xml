@@ -1,0 +1,8 @@
+<teams>
+    <assignees>
+        {{get_doc_from_roots(["public"], "/app/home/teams/todos/assignee")}}
+    </assignees>
+    <edit-assignees>
+        {{ get_doc_from_roots(["public"], '/app/home/teams/todos/assignee#edit_assignee') }}
+    </edit-assignees>
+</teams>
