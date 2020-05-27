@@ -64,6 +64,8 @@ Cdocs has several ways of getting content:
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
  - **get_labels**: labels as json dicts for paths like ```/x/y/z``` found as ```[root]/x/y/z/labels.json```. Labels are transformed in the same way as docs, except that the keys of the json dict are individual templates. A label can pull in a doc in the same way that a doc is embedded in a compose doc. Labels that pull in docs are tricky because the docs pulled in may or may not correctly handle any label replacements used with tokens.json, depending on any circular references.
 
+Each of these retrieval methods is matched by a similarly named "..._from_roots" version that takes a List of root names. See the MultiContextDocs abstract base class.
+
 Creating a Cdocs endpoint using Flask might look something like:
 ```
 app = Flask(__name__)
