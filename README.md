@@ -15,7 +15,7 @@ You may configure as many docs directory trees as you find useful. Multi tree re
 
 Every transform template -- a doc found at a docpath -- has access to the MultiContextDocs methods and the ContextualDocs methods. This means that transformed docs can include pointers to specific roots to resolve included docpath. For example:
 
-```{{ get_doc_from_roots(["public, en_US, en_UK"], '/app/home/teams/todos/assignee#edit_assignee') }}```
+```{{ get_doc_from_roots(['public', 'en_US', 'en_UK'], '/app/home/teams/todos/assignee#edit_assignee') }}```
 
 One use for this might be for one root to hold user facing docs composed of reusable chunks of content from another root. Finding docs from the same locale would be another good use for this.
 
