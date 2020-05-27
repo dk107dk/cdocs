@@ -14,7 +14,9 @@ Requests for labels and tokens are aggregated from every directory below root, s
 You may configure as many docs directory trees as you find useful. Multi tree requests go against a Context object that implements the MultiContextDocs abstract base class and returns docs by searching the trees in the order they appear in config.ini. You may limit each directory tree to certain file types. Each root is self-contained, meaning that labels and tokens used in doc file transformations are found and applied only within their directory tree. However, multi-context requests for labels return labels aggregated from all trees. If this is not desireable, use the MultiContextDocs interface passing in only the roots you want labels from.
 
 Every transform template -- a doc found at a docpath -- has access to the MultiContextDocs methods and the ContextualDocs methods. This means that transformed docs can include pointers to specific roots to resolve included docpath. For example:
+
 ```{{ get_doc_from_roots(["public, en_US, en_UK"], '/app/home/teams/todos/assignee#edit_assignee') }}```
+
 One use for this might be for one root to hold user facing docs composed of reusable chunks of content from another root. Finding docs from the same locale would be another good use for this.
 
 Cdocs will return binary files based on a limited set of known file types. Currently the types are 'gif', 'jpeg', 'jpg', 'png', 'pdf'.
