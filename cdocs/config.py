@@ -19,3 +19,6 @@ class Config(Physical, metaclass=abc.ABCMeta):
     def get_items(self, group:str, exceptnot:List[str]=None) -> List[Tuple[str, str]]:
         pass
 
+    @abc.abstractmethod
+    def get_matching_key_for_value(self, group:str, value:str) -> Optional[str]:
+        pass

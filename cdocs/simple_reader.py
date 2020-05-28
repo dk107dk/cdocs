@@ -20,6 +20,9 @@ class SimpleReader(Reader):
 
 
     def is_available(self, filepath:FilePath) -> bool:
+        if filepath is None:
+            logging.warn(f"SimpleReader.is_available: filepath is None")
+            return False
         return os.path.isfile(filepath)
 
 

@@ -3,7 +3,7 @@ import unittest
 
 class ConfigTests(unittest.TestCase):
 
-    noise = False
+    noise = True
     def _print(self, text:str) -> None:
         if self.noise:
             print(text)
@@ -24,4 +24,13 @@ class ConfigTests(unittest.TestCase):
         self._print(f"test_get_with_default: {oh}")
         self.assertEqual( oh, "yeah!", msg="must equal the default value" )
 
+    def test_get_matching_key_for_value(self):
+        self._print(f"ConfigTests.test_get_matching_key_for_value")
+        cfg = SimpleConfig()
+        name = cfg.get_matching_key_for_value("docs", "/Users/davidkershaw/dev/cdocs/docs/internal")
+        self._print(f"ConfigTests.test_get_matching_key_for_value: name1: {name}")
+        self.assertEqual( name, "internal", msg="must equal the 'internal' root" )
+        name = cfg.get_matching_key_for_value("docs", "fish")
+        self._print(f"ConfigTests.test_get_matching_key_for_value: name2: {name}")
+        self.assertNotEqual( name, "internal", msg="must not equal the 'internal' root" )
 

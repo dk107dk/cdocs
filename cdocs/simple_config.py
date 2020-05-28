@@ -47,3 +47,11 @@ class SimpleConfig(Config):
             items = [ _ for _ in items if _[0] not in exceptnot]
         return items
 
+    def get_matching_key_for_value(self, group:str, value:str) -> Optional[str]:
+        items = self.get_items(group)
+        for item in items:
+            if item[1] == value:
+                return item[0]
+        return None
+
+

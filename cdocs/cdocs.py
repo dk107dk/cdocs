@@ -33,7 +33,14 @@ class Cdocs(ContextualDocs, Physical):
         cfg = SimpleConfig(None) if config is None else config
         self._config = cfg
         self._docs_path:FilePath = docspath
-        self._ext:str  = cfg.get_with_default("formats", "ext", "xml")
+        # this is the default
+        self._rootname = cfg.get_matching_key_for_value("docs", docspath)
+        ext = cfg.get_with_default("formats", "ext", "xml")
+        ext = cfg.get_with_default("formats", self._rootname, ext)
+        if ext.find(",") > -1:
+            self._exts = ext.split(",")
+        else:
+            self._exts = [ext]
         self._filer = SimpleFiler()
         self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
@@ -42,7 +49,7 @@ class Cdocs(ContextualDocs, Physical):
         self.reader = SimpleReader() if cfg.reader is None else cfg.reader
         self.finder = SimpleFinder(docspath) if cfg.finder is None else cfg.finder
         self.pather = SimplePather(self._docs_path, cfg.get_config_path()) if cfg.pather is None else cfg.pather
-        logging.info(f"Cdocs.__init__: path: {self._docs_path}, ext: {self._ext}, \
+        logging.info(f"Cdocs.__init__: path: {self._docs_path}, exts: {self._exts}, \
 tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
 hash: {self._hashmark}, plus: {self._plus}")
 
@@ -67,6 +74,14 @@ hash: {self._hashmark}, plus: {self._plus}")
     @property
     def config(self):
         return self._config
+
+    @property
+    def rootname(self):
+        return self._rootname
+
+    @property
+    def exts(self):
+        return self._exts
 
 # ===================
 # abc methods

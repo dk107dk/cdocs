@@ -3,6 +3,7 @@ import unittest
 import os
 
 PATH:str = "/Users/davidkershaw/dev/cdocs/docs/example"
+PATH2:str = "/Users/davidkershaw/dev/cdocs/docs/internal"
 
 class CdocsTests(unittest.TestCase):
 
@@ -171,6 +172,21 @@ class CdocsTests(unittest.TestCase):
         self.assertNotEqual(-1, na, msg=f'{docpath} must include "new assignee" in {doc}')
         self.assertNotEqual(-1, ea, msg=f'{docpath} must include "edit assignee" in {doc}')
         self._print(f'test_get_compose_doc: compose doc: {doc}')
+
+    def test_get_doc_from_root_with_multiple_ext(self):
+        self._print(f"CdocsTests.test_get_doc_from_root_with_multiple_ext")
+        docpath = "/app/home"
+        cdocs = Cdocs(PATH2)
+        doc = cdocs.get_doc(docpath)
+        self.assertIsNotNone(doc, msg=f'{docpath} must not return None')
+        home = doc.find("This is home in text!")
+        self.assertNotEqual(-1, home, msg=f'{docpath} must include "This is home in text!" in {doc}')
+        doc = cdocs.get_doc(docpath + "/teams")
+        self.assertIsNotNone(doc, msg=f'{docpath} must not return None')
+        home = doc.find("<teams>")
+        self.assertNotEqual(-1, home, msg=f'{docpath} must include "<teams>" in {doc}')
+
+
 
 
 
