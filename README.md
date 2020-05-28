@@ -1,7 +1,7 @@
 # Cdocs
 ## A super simple contextual help library.
 
-**Cdocs** is intended to help manage files for use in contextual help systems. The library knows how to find docs given a path. Paths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+**Cdocs** is intended to help manage files for use in context sensitive help systems. The library knows how to find docs given a path. Paths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
 The expected use of Cdocs is to create an endpoint to retrieve in-context help docs from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system; however, that is not its intended use.
 
@@ -34,10 +34,11 @@ Use a *config.ini* to set the root directories, file extension, etc. The default
 # you can configure defaults to point to a file to return if a doc is not found. if not configured, the response to a path that doesn't exist is None.
 [defaults]
    notfound = internal/404
-# format section currently only used to indicate the extension of files found using /x/y/z paths
+# format section indicates the extensions found using /x/y/z paths. 'ext' is the default. others are named by their roots. the formats and accepts sections should agree, excepting where accepts is 'cdocs'
 [formats]
    ext = xml
-# filenames section lets you change the names of the tokens and labels files, set the name anchor char (hashmark), and the on the fly concatination char (plus)
+   internal = gif,png,jpeg
+# filenames section lets you change the names of the tokens and labels files, set the name anchor char (hashmark), and the on the fly concatenation char (plus)
 [filenames]
    tokens = tokens.json
    labels = labels.json
