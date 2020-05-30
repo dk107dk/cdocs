@@ -5,11 +5,22 @@ from cdocs.contextual_docs import DocPath, FilePath, JsonDict
 from cdocs.simple_config import SimpleConfig
 from cdocs.transformer import Transformer
 from cdocs.contextual_docs import DocPath
+import inflect
 
 class SimpleTransformer(Transformer):
 
     def __init__(self, cdocs): # can't type hint cdocs because circular
         self._cdocs = cdocs
+        self._engine = inflect.engine()
+
+    def _plural(self, word):
+        return self._engine.plural(word)
+
+    def _cap(self, word):
+        return word.capitalize()
+
+    def _article(self, word):
+        return self._engine.a(word)
 
     def transform(self, content:str, path:DocPath=None, \
                    tokens:Optional[Dict[str,str]]=None, transform_labels=True) -> str:
@@ -29,6 +40,9 @@ class SimpleTransformer(Transformer):
             tokens["get_doc"] = self._cdocs.get_doc
             tokens["get_compose_doc"] = self._cdocs.get_compose_doc
             tokens["get_concat_doc"] = self._cdocs.get_concat_doc
+            tokens["plural"] = self._plural
+            tokens["cap"] = self._cap
+            tokens["article"] = self._article
             if self._cdocs.context is not None:
                 tokens["get_concat_doc_from_roots"] = self._cdocs.context.get_concat_doc_from_roots
                 tokens["get_compose_doc_from_roots"] = self._cdocs.context.get_compose_doc_from_roots
