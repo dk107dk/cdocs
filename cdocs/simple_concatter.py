@@ -20,3 +20,8 @@ class SimpleConcatter(Concatter):
                 result += '\n' + doc
         return Doc(result)
 
+    # a more capable concatter might check if both were JsonDoc and
+    # if so combine them
+    def join(self, content:str, morecontent:str) -> str:
+        return content + " " + morecontent
+

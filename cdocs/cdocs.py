@@ -188,8 +188,7 @@ hash: {self._hashmark}, plus: {self._plus}")
         content = self._read_doc(filepath)
         content = self.transformer.transform(content, path, None, True)
         if len(pluspaths) > 0:
-            for apath in pluspaths:
-                content += " " + self._get_doc_for_root(apath, [], root)
+            content = self.concatter.join(content, self.concatter.concat(pluspaths))
         return Doc(content)
 
     def _transform_labels(self, path:DocPath, labels:JsonDict) -> JsonDict:
@@ -207,18 +206,6 @@ hash: {self._hashmark}, plus: {self._plus}")
         ltokens = { "label__"+k:v for k,v in labels.items()}
         tokens  = {**ltokens, **tokens}
         return JsonDict(tokens)
-
-    """
-    def _concat(self, paths:List[DocPath]) -> Doc:
-        result = ''
-        for apath in paths:
-            if apath.strip() == '':
-                pass
-            else:
-                doc = self.get_doc(apath)
-                result += '\n' + doc
-        return Doc(result)
-    """
 
     def _get_plus_paths( self, path:DocPath) -> List[DocPath]:
         lines = path.split(self._plus)
