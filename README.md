@@ -1,7 +1,9 @@
 # Cdocs
 ## A super simple contextual help library.
 
-**Cdocs** is intended to help manage files for use in context sensitive help systems. The library knows how to find docs given a path. Paths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+**Cdocs** is intended to help manage files for use in context sensitive help. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+
+<img style='padding:10px 3px 10px 3px;' src='resources/images/docpath.png'/>
 
 The expected use of Cdocs is to create an endpoint to retrieve in-context help docs from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system; however, that is not its intended use.
 
@@ -25,8 +27,8 @@ Use a *config.ini* to set the root directories, file extension, etc. The default
 ```
 # docs section lists the doc directory roots. use as many as you need.
 [docs]
-   public = /Users/davidkershaw/dev/cdocs/docs/example
-   internal = /Users/davidkershaw/dev/cdocs/docs/internal
+   public = /Users/dk/dev/cdocs/docs/example
+   internal = /Users/dk/dev/cdocs/docs/internal
 # accepts limits the file types handled by each root. root names passed to the context will be filtered according to this list.
 [accepts]
    public = cdocs
