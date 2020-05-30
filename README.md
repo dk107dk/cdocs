@@ -3,7 +3,7 @@
 
 **Cdocs** is intended to help manage files for use in context sensitive help. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
-![](./resources/images/docpath.png =75x75)
+<img style='padding:10px 3px 10px 3px;height:75%;width:75%;' src='resources/images/docpath.png'/>
 
 The expected use of Cdocs is to create an endpoint to retrieve in-context help docs from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system; however, that is not its intended use.
 
