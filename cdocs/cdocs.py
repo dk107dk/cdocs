@@ -7,7 +7,9 @@ from cdocs.pather import Pather
 from cdocs.reader import Reader
 from cdocs.finder import Finder
 from cdocs.transformer import Transformer
+from cdocs.concatter import Concatter
 from cdocs.simple_transformer import SimpleTransformer
+from cdocs.simple_concatter import SimpleConcatter
 from cdocs.simple_config import SimpleConfig
 from cdocs.simple_reader import SimpleReader
 from cdocs.simple_pather import SimplePather
@@ -41,11 +43,16 @@ class Cdocs(ContextualDocs, Physical):
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
+        #
+        # these helpers can be swapped in and out as needed
+        #
+        self._concatter = SimpleConcatter(self)
         self._filer = SimpleFiler()
         self._transformer = SimpleTransformer(self)
         self._reader = SimpleReader() if cfg.reader is None else cfg.reader
         self._finder = SimpleFinder(docspath) if cfg.finder is None else cfg.finder
         self._pather = SimplePather(self._docs_path, cfg.get_config_path()) if cfg.pather is None else cfg.pather
+        #
         logging.info(f"Cdocs.__init__: path: {self._docs_path}, exts: {self._exts}, \
 tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
 hash: {self._hashmark}, plus: {self._plus}")
@@ -63,6 +70,10 @@ hash: {self._hashmark}, plus: {self._plus}")
 
     def get_tokens(self, path:DocPath) -> JsonDict:
         return self._get_dict(path, self._tokens_filename)
+
+    @property
+    def concatter(self) -> Concatter:
+        return self._concatter
 
     @property
     def reader(self) -> Reader:
@@ -133,7 +144,7 @@ hash: {self._hashmark}, plus: {self._plus}")
         paths = self._get_concat_paths(path)
         if paths is None:
             raise DocNotFoundException(f'No concat instruction file at {path}')
-        content = self._concat( paths)
+        content = self.concatter.concat(paths)
         return Doc(content)
 
     def get_doc(self, path:DocPath) -> Doc:
@@ -197,6 +208,7 @@ hash: {self._hashmark}, plus: {self._plus}")
         tokens  = {**ltokens, **tokens}
         return JsonDict(tokens)
 
+    """
     def _concat(self, paths:List[DocPath]) -> Doc:
         result = ''
         for apath in paths:
@@ -206,6 +218,7 @@ hash: {self._hashmark}, plus: {self._plus}")
                 doc = self.get_doc(apath)
                 result += '\n' + doc
         return Doc(result)
+    """
 
     def _get_plus_paths( self, path:DocPath) -> List[DocPath]:
         lines = path.split(self._plus)
