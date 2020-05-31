@@ -43,6 +43,7 @@ class SimpleTransformer(Transformer):
             tokens["plural"] = self._plural
             tokens["cap"] = self._cap
             tokens["article"] = self._article
+            tokens["docroot"] = self._cdocs.get_doc_root()
             if self._cdocs.context is not None:
                 tokens["get_concat_doc_from_roots"] = self._cdocs.context.get_concat_doc_from_roots
                 tokens["get_compose_doc_from_roots"] = self._cdocs.context.get_compose_doc_from_roots
