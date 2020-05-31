@@ -29,6 +29,7 @@ class SimplePather(Pather):
         logging.info(f"SimplePather.get_full_file_path_for_root: path: {path}, root: {root}")
         path = path.strip('/\\')
         if path == '':
+            logging.info(f"SimplePather.get_full_file_path_for_root: path points to root. returning root.")
             return root
         filename = self.get_filename(path)
         logging.info(f"SimplePather.get_full_file_path_for_root: filename: {filename}, root: {root}")
@@ -61,6 +62,14 @@ class SimplePather(Pather):
             logging.info(f"SimplePather._find_path: checking: apath: {apath}")
             if os.path.exists(apath):
                 return apath
+        if len(self._exts) == 1:
+            logging.info("SimplePather._find_path: no file. just one ext. we assume name + '.' + ext")
+            return apath + "." + self._exts[0]
+        elif len(self._exts) > 1:
+            logging.warning("SimplePather._find_path: on file. there are {len(self._exts)} exts, so we guess the first one.")
+            return apath + "." + self._exts[0]
+        else:
+            logging.warning("SimplePather._find_path: no exts! this is bad.")
         return None
 
     def get_filename(self, path:str) -> Optional[str]:
