@@ -22,6 +22,11 @@ FilePath = NewType('FilePath', str)
 # Only tokens JsonDict have callable members.
 JsonDict = NewType('JsonDict', Dict[str, Union[str,Callable[[str],str]]])
 
+# a Path is either a DocPath or a FilePath. in some cases
+# a helper may need to recieve or treat as one or the other
+# where another helper might need or treat the other way.
+Path = NewType('Path', Union[DocPath,FilePath])
+
 
 class ContextualDocs(metaclass=abc.ABCMeta):
     """
