@@ -64,10 +64,10 @@ class SimplePather(Pather):
                 return apath
         if len(self._exts) == 1:
             logging.info("SimplePather._find_path: no file. just one ext. we assume name + '.' + ext")
-            return apath + "." + self._exts[0]
+            return path + "." + self._exts[0]
         elif len(self._exts) > 1:
             logging.warning("SimplePather._find_path: on file. there are {len(self._exts)} exts, so we guess the first one.")
-            return apath + "." + self._exts[0]
+            return path + "." + self._exts[0]
         else:
             logging.warning("SimplePather._find_path: no exts! this is bad.")
         return None
