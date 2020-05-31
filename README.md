@@ -1,11 +1,11 @@
 # Cdocs
 ## A super simple contextual help library.
 
-**Cdocs** is intended to help manage files for use in context sensitive help. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+**Cdocs** is intended to help manage files for use in context sensitive help and I18n. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
 <img width="75%" height="75%" src="resources/images/docpath.png"/>
 
-The expected use of Cdocs is to create an endpoint to retrieve in-context help docs from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system; however, that is not its intended use.
+The expected use of Cdocs is to create an endpoint to retrieve in-context help docs and/or UI labels from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system, but that is not its intended use.
 
 Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
@@ -21,7 +21,7 @@ Every transform template -- a doc found at a docpath -- has access to the MultiC
 
 ```{{ get_doc_from_roots(['public', 'en_US', 'en_UK'], '/app/home/teams/todos/assignee#edit_assignee') }}```
 
-One use for this might be for one root to hold user facing docs composed of reusable chunks of content from another root. Finding docs from the same locale would be another good use for this.
+One use for this might be for one root to hold user facing docs composed of reusable chunks of content from another root. Finding translated help docs from the same locale would be another good use for this.
 
 Cdocs will return binary files based on a limited set of known file types. Currently the types are 'gif', 'jpeg', 'jpg', 'png', 'pdf'.
 
