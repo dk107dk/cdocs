@@ -4,6 +4,7 @@ import os
 
 PATH:str = "/Users/davidkershaw/dev/cdocs/docs/example"
 PATH2:str = "/Users/davidkershaw/dev/cdocs/docs/internal"
+JSON:str = "/Users/davidkershaw/dev/cdocs/docs/json"
 
 class CdocsTests(unittest.TestCase):
 
@@ -188,6 +189,17 @@ class CdocsTests(unittest.TestCase):
 
 
 
+
+    def test_concat_json(self):
+        self._print(f"\n\n>>>>>>>>>>>>>>>> CdocsTests.test_concat_json")
+        docpath = "/app/home+home_screen"
+        cdocs = Cdocs(JSON)
+        print(f"CdocsTests.test_concat_json: root name: {cdocs.rootname}")
+        doc = cdocs.get_doc(docpath)
+        self.assertIsNotNone(doc, msg=f'{docpath} must not return None')
+        print(f"CdocsTests.test_concat_json: doc: {doc}\n\n\n")
+        home = doc.find('{"how-to-use": "How to use My Home", "header": "Home Screen", "content": "The home screen is where you land after logging in."}')
+        self.assertNotEqual(-1, home, msg=f'{docpath} must include the joined json, not: {doc}')
 
 
 

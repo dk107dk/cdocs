@@ -3,7 +3,7 @@ import unittest
 
 class ConfigTests(unittest.TestCase):
 
-    noise = True
+    noise = False
     def _print(self, text:str) -> None:
         if self.noise:
             print(text)
@@ -13,9 +13,9 @@ class ConfigTests(unittest.TestCase):
         cfg = SimpleConfig()
         items = cfg.get_items("docs", ["public"])
         self._print(f"test_get_config_items: items: {items}")
-        self.assertEqual( len(items), 2, msg="must be 2 items for docs" )
+        self.assertEqual( len(items), 3, msg=f"must be 3 items for docs, not {items}" )
         items = cfg.get_items("fish")
-        self.assertEqual( len(items), 0, msg="must be 0 items for fish" )
+        self.assertEqual( len(items), 0, msg=f"must be 0 items for fish, not {items}" )
 
     def test_get_with_default(self):
         self._print(f"ConfigTests.test_get_with_default")

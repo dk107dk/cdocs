@@ -156,8 +156,11 @@ hash: {self._hashmark}, plus: {self._plus}")
         if path.find('.') > -1:
             if self.filer.get_filetype(path) == 'cdocs':
                 raise BadDocPath("dots are not allowed in cdoc paths")
+        logging.info(f"Cdocs._get_doc: path: {path}")
         pluspaths = self._get_plus_paths(path)
+        logging.info(f"Cdocs._get_doc: pluspaths {pluspaths}")
         root = self.get_doc_root()
+        logging.info(f"Cdocs._get_doc: root {root}")
         doc = self._get_doc_for_root(path, pluspaths, root)
         if doc is None and notfound:
            doc = self.get_404()
@@ -185,6 +188,7 @@ hash: {self._hashmark}, plus: {self._plus}")
             plus = path.find(self._plus)
             path = path[0:plus]
         filepath = self._pather.get_full_file_path_for_root(path, root)
+        logging.info(f"Cdocs._get_doc_for_root: fp {filepath}")
         content = self._read_doc(filepath)
         content = self.transformer.transform(content, path, None, True)
         if len(pluspaths) > 0:

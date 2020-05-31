@@ -14,7 +14,7 @@ class ContextTests(unittest.TestCase):
         self._print("ContextTests.test_roots")
         metadata = ContextMetaData()
         roots = metadata.roots
-        self.assertEqual( len(roots), 3, msg="must be 3 roots" )
+        self.assertEqual( len(roots), 4, msg="must be 4 roots" )
 
     def test_accepts(self):
         self._print("ContextTests.test_accepts")
@@ -22,7 +22,7 @@ class ContextTests(unittest.TestCase):
         accepts = metadata.accepts
         if self.noise: self._print(f"accepts: {accepts}")
         self.assertIsNotNone( accepts, msg="accepts must not be None")
-        self.assertEqual(len(accepts), 3, msg="must be 3 keys in accepts")
+        self.assertEqual(len(accepts), 4, msg=f"must be 4 keys in accepts, not {accepts}")
         self.assertIsNotNone( accepts["images"], msg="accepts must have an 'images' key")
         images = accepts["images"]
         self.assertEqual(len(images), 4, msg="must be 4 items in images")
@@ -37,7 +37,7 @@ class ContextTests(unittest.TestCase):
         accceptedby = metadata.accepted_by
         self._print(f"accceptedby: {accceptedby}")
         self.assertIsNotNone( accceptedby, msg="accceptedby must not be None")
-        self.assertEqual(len(accceptedby), 5, msg="must be 5 keys in accceptedby")
+        self.assertEqual(len(accceptedby), 6, msg=f"must be 6 keys in accceptedby, not {accceptedby}")
         self.assertIsNotNone( accceptedby["cdocs"], msg="accepts must have a 'cdocs' key")
         cdocs = accceptedby["cdocs"]
         self.assertEqual(len(cdocs), 2, msg="must be 2 items in cdocs")
@@ -87,7 +87,7 @@ class ContextTests(unittest.TestCase):
         metadata = ContextMetaData()
         context = Context(metadata)
         cdocs = context.cdocs
-        self.assertEqual( len(cdocs), 3, msg="must be 3 cdocs" )
+        self.assertEqual( len(cdocs), 4, msg=f"must be 4 cdocs, not {len(cdocs)} from {cdocs}" )
 
     def test_get_known_type_doc(self):
         self._print(f"ContextTests.test_get_known_type_doc")

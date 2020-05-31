@@ -3,7 +3,7 @@ import os.path
 from .contextual_docs import Doc, FilePath
 from cdocs.reader import Reader
 import logging
-
+import traceback
 
 class SimpleReader(Reader):
 
@@ -21,7 +21,8 @@ class SimpleReader(Reader):
 
     def is_available(self, filepath:FilePath) -> bool:
         if filepath is None:
-            logging.warn(f"SimpleReader.is_available: filepath is None")
+            logging.warning(f"SimpleReader.is_available: filepath is None")
+            #traceback.print_stack(limit=7)
             return False
         return os.path.isfile(filepath)
 
