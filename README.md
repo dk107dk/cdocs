@@ -3,13 +3,13 @@
 
 **<a href='https://pypi.org/project/cdocs/'>Cdocs</a>** is intended to help manage files for use in <a href='https://en.wikipedia.org/wiki/Context-sensitive_help'>context sensitive help</a> and <a href='https://en.wikipedia.org/wiki/Internationalization_and_localization'>I18n</a>. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
-<img width="75%" height="75%" src="resources/images/docpath.png"/>
+<img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/docpath.png"/>
 
 The expected use of Cdocs is to create an endpoint to retrieve in-context help docs and/or UI labels from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system, but that is not its intended use.
 
 Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
-<img width="75%" height="75%" src="resources/images/json-xml-html.png"/>
+<img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/json-xml-html.png"/>
 
 Cdocs can also be used to find text strings referred to as labels. Labels are stored as (non-template) json files containing dict in the same directory tree. The expected use is to find a JSON structure of labels for UI elements that would be seen in the same screen contextual help is available for.
 
@@ -71,7 +71,7 @@ Cdocs has several ways of getting content:
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
  - **get_labels**: labels as json dicts for paths like ```/x/y/z``` found as ```[root]/x/y/z/labels.json```. Labels are transformed in the same way as docs, except that the keys of the json dict are individual templates. A label can pull in a doc in the same way that a doc is embedded in a compose doc. Labels that pull in docs are tricky because the docs pulled in may or may not correctly handle any label replacements used with tokens.json, depending on any circular references.
 
-<img width="75%" height="75%" src="resources/images/labels.png"/>
+<img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/labels.png"/>
 
 Each of these retrieval methods is matched by a similarly named "..._from_roots" version that takes a List of root names. See the MultiContextDocs abstract base class.
 
