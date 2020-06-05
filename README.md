@@ -1,13 +1,13 @@
 # Cdocs
 ## A super simple contextual help library.
 
-**<a href='https://pypi.org/project/cdocs/'>Cdocs</a>** is intended to help manage files for use in <a href='https://en.wikipedia.org/wiki/Context-sensitive_help'>context sensitive help</a> and <a href='https://en.wikipedia.org/wiki/Internationalization_and_localization'>I18n</a>. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+**<a href='https://pypi.org/project/cdocs/'>Cdocs</a>** is a <a href='https://pypi.org/project/cdocs/'>Python library</a> that is intended to help manage files for use in <a href='https://en.wikipedia.org/wiki/Context-sensitive_help'>context sensitive help</a> and <a href='https://en.wikipedia.org/wiki/Internationalization_and_localization'>I18n</a>. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
 <img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/docpath.png"/>
 
-The expected use of Cdocs is to create an endpoint to retrieve in-context help docs and/or UI labels from at runtime, or to pull docs into an app build. In principle and with some custom code, Cdocs could be used as a lightweight general purpose help and manual system, but that is not its intended use.
+The expected use of Cdocs is to create an endpoint to retrieve in-context help docs and/or UI labels from at runtime, or to pull docs into an app build. Cdocs is not its intended to be a general help and manual system.
 
-Cdocs stores documentation as text files in a directory tree. Files are Jinja templates containing whatever doc format you prefer. Cdocs applies tokens to the templates if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
+Cdocs stores documentation as text files in a directory tree. Files are <a href='https://jinja.palletsprojects.com/en/2.11.x/'>Jinja templates</a> containing whatever doc format you prefer. Cdocs applies tokens to the templates if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
 <img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/json-xml-html.png"/>
 
@@ -75,7 +75,7 @@ Cdocs has several ways of getting content:
 
 Each of these retrieval methods is matched by a similarly named "..._from_roots" version that takes a List of root names. See the MultiContextDocs abstract base class.
 
-Creating a Cdocs endpoint using Flask might look something like:
+Creating a Cdocs endpoint using <a href='https://flask.palletsprojects.com/en/1.1.x/'>Flask</a> might look something like:
 ```
 app = Flask(__name__)
 api = Api(app)
