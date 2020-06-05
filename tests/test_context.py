@@ -1,5 +1,6 @@
 from cdocs.cdocs import Cdocs, DocNotFoundException, BadDocPath
-from cdocs.context import ContextMetaData, Context
+from cdocs.context import Context
+from cdocs.context_metadata import ContextMetadata
 import unittest
 import os
 
@@ -12,13 +13,13 @@ class ContextTests(unittest.TestCase):
 
     def test_roots(self):
         self._print("ContextTests.test_roots")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         roots = metadata.roots
         self.assertEqual( len(roots), 4, msg="must be 4 roots" )
 
     def test_accepts(self):
         self._print("ContextTests.test_accepts")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         accepts = metadata.accepts
         if self.noise: self._print(f"accepts: {accepts}")
         self.assertIsNotNone( accepts, msg="accepts must not be None")
@@ -33,7 +34,7 @@ class ContextTests(unittest.TestCase):
 
     def test_accepted_by(self):
         self._print("ContextTests.test_accepted_by")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         accceptedby = metadata.accepted_by
         self._print(f"accceptedby: {accceptedby}")
         self.assertIsNotNone( accceptedby, msg="accceptedby must not be None")
@@ -48,7 +49,7 @@ class ContextTests(unittest.TestCase):
 
     def test_get_filetype(self):
         self._print("ContextTests.test_get_filetype")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         atype = context.get_filetype("/x/y/z.gif")
         self._print(f"type for /x/y/z.gif: {atype}")
@@ -59,7 +60,7 @@ class ContextTests(unittest.TestCase):
 
     def test_filter_root_names_for_path(self):
         self._print("ContextTests.test_filter_root_names_for_path")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         roots = ["images", "fish", "public"]
         rs = context.filter_root_names_for_path(roots, "/x/y/z")
@@ -71,7 +72,7 @@ class ContextTests(unittest.TestCase):
 
     def test_get_root_names_accepting_path(self):
         self._print("ContextTests.test_get_root_names_accepting_path")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         gifs = context.get_root_names_accepting_path("/x/y/z.gif")
         self._print(f"roots for /x/y/z.gif: {gifs}")
@@ -84,14 +85,14 @@ class ContextTests(unittest.TestCase):
 
     def test_create_context(self):
         self._print("ContextTests.test_context")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         cdocs = context.cdocs
         self.assertEqual( len(cdocs), 4, msg=f"must be 4 cdocs, not {len(cdocs)} from {cdocs}" )
 
     def test_get_known_type_doc(self):
         self._print(f"ContextTests.test_get_known_type_doc")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         docpath = "/app/home/teams/3-copy.png"
         f = context.get_doc(docpath)
@@ -101,7 +102,7 @@ class ContextTests(unittest.TestCase):
 
     def test_get_doc(self) :
         self._print(f"ContextTests.test_get_doc")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
         txt = context.get_doc(docpath)
@@ -115,7 +116,7 @@ class ContextTests(unittest.TestCase):
     def test_get_labels(self):
         self._print(f"ContextTests.test_get_labels")
         docpath = "/app/home/teams/todos/assignee"
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         labels = context.get_labels(docpath)
         self._print(f"test_get_labels: the labels are: {labels}")
@@ -127,7 +128,7 @@ class ContextTests(unittest.TestCase):
 
     def test_get_doc_from_wrong_root(self) :
         self._print(f"ContextTests.test_get_doc_from_wrong_root")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
         txt = context.get_doc_from_roots(["images"], docpath)
@@ -135,7 +136,7 @@ class ContextTests(unittest.TestCase):
 
     def test_get_doc_from_right_root(self) :
         self._print(f"ContextTests.test_get_doc_from_right_root")
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
         txt = context.get_doc_from_roots(["public"], docpath)
@@ -145,7 +146,7 @@ class ContextTests(unittest.TestCase):
     def test_get_compose_doc_with_roots(self):
         self._print(f"ContextTests.test_get_compose_doc_with_roots")
         docpath = "/app/home/teams"
-        metadata = ContextMetaData()
+        metadata = ContextMetadata()
         context = Context(metadata)
         doc = context.get_doc_from_roots(["internal"], docpath)
         print(f"test_get_compose_doc_with_roots: doc from 'internal': {doc}")

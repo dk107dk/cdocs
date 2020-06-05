@@ -4,15 +4,16 @@ from cdocs.contextual_docs import DocPath, FilePath
 from cdocs.simple_config import SimpleConfig
 from cdocs.pather import Pather
 from typing import Optional
+#from cdocs.context_metadata import ContextMetadata
 
 class SimplePather(Pather):
 
-    def __init__(self, docspath:FilePath, config:FilePath=None):
-        cfg = SimpleConfig(config)
+    def __init__(self, metadata, cdocs): #docspath:FilePath, config:FilePath=None):
+        cfg = metadata.config
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
-        self._docs_path:str = docspath
-        self._rootname = cfg.get_matching_key_for_value("docs", docspath)
-        logging.info(f"SimplePather.__init__: docspath: {docspath}, rootname: {self._rootname}")
+        self._docs_path:str = cdocs.get_doc_root()
+        self._rootname = cfg.get_matching_key_for_value("docs", cdocs.get_doc_root())
+        logging.info(f"SimplePather.__init__: docspath: {cdocs.get_doc_root()}, rootname: {self._rootname}")
         ext = cfg.get_with_default("formats", "ext", "xml")
         ext = cfg.get_with_default("formats", self._rootname, ext)
         logging.info(f"SinplePather.__init__: ext: {ext}")

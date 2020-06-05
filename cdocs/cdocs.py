@@ -17,6 +17,7 @@ from cdocs.simple_finder import SimpleFinder
 from cdocs.simple_filer import SimpleFiler
 from cdocs.physical import Physical
 from cdocs.multi_context_docs import MultiContextDocs
+from cdocs.context_metadata import ContextMetadata
 
 
 class DocNotFoundException(Exception):
@@ -51,7 +52,14 @@ class Cdocs(ContextualDocs, Physical):
         self._transformer = SimpleTransformer(self)
         self._reader = SimpleReader() if cfg.reader is None else cfg.reader
         self._finder = SimpleFinder(docspath) if cfg.finder is None else cfg.finder
-        self._pather = SimplePather(self._docs_path, cfg.get_config_path()) if cfg.pather is None else cfg.pather
+        if cfg.pather is None:
+            metadata = ContextMetadata()
+            metadata.config = cfg
+            self._pather = SimplePather(metadata, self)
+            pass
+        else:
+            self._pather = cfg.pather
+            #self._pather = SimplePather(self._docs_path, cfg.get_config_path()) if cfg.pather is None else cfg.pather
         #
         logging.info(f"Cdocs.__init__: path: {self._docs_path}, exts: {self._exts}, \
 tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
