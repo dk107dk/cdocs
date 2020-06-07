@@ -26,6 +26,9 @@ class DocNotFoundException(Exception):
 class BadDocPath(Exception):
     pass
 
+class BadFilePath(Exception):
+    pass
+
 class ComposeDocException(Exception):
     pass
 
