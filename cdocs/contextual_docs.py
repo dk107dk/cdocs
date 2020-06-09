@@ -1,5 +1,5 @@
 import abc
-from typing import NewType, Dict, Callable, Union, Optional
+from typing import NewType, Dict, Callable, Union, Optional, List
 
 
 # Doc is the contextual documentation content
@@ -50,5 +50,7 @@ class ContextualDocs(metaclass=abc.ABCMeta):
     def get_labels(self, path:DocPath) ->  Optional[JsonDict]:
         pass
 
+    def list_docs(self, path:DocPath) -> List[Doc]:
+        pass
 
 

@@ -5,6 +5,7 @@ from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDo
 from cdocs.config import Config
 from cdocs.pather import Pather
 from cdocs.reader import Reader
+from cdocs.lister import Lister
 from cdocs.finder import Finder
 from cdocs.transformer import Transformer
 from cdocs.concatter import Concatter
@@ -12,6 +13,7 @@ from cdocs.simple_transformer import SimpleTransformer
 from cdocs.simple_concatter import SimpleConcatter
 from cdocs.simple_config import SimpleConfig
 from cdocs.simple_reader import SimpleReader
+from cdocs.simple_lister import SimpleLister
 from cdocs.simple_pather import SimplePather
 from cdocs.simple_finder import SimpleFinder
 from cdocs.simple_filer import SimpleFiler
@@ -51,6 +53,7 @@ class Cdocs(ContextualDocs, Physical):
         # these helpers can be swapped in and out as needed
         #
         self._concatter = SimpleConcatter(self)
+        self._lister = SimpleLister(self)
         self._filer = SimpleFiler()
         self._transformer = SimpleTransformer(self)
         self._reader = SimpleReader() if cfg.reader is None else cfg.reader
@@ -62,8 +65,6 @@ class Cdocs(ContextualDocs, Physical):
             pass
         else:
             self._pather = cfg.pather
-            #self._pather = SimplePather(self._docs_path, cfg.get_config_path()) if cfg.pather is None else cfg.pather
-        #
         logging.info(f"Cdocs.__init__: path: {self._docs_path}, exts: {self._exts}, \
 tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
 hash: {self._hashmark}, plus: {self._plus}")
@@ -99,6 +100,10 @@ hash: {self._hashmark}, plus: {self._plus}")
         return self._pather
 
     @property
+    def lister(self) -> Lister:
+        return self._lister
+
+    @property
     def context(self) -> MultiContextDocs:
         return self._context
 
@@ -129,6 +134,9 @@ hash: {self._hashmark}, plus: {self._plus}")
 # ===================
 # abc methods
 # ===================
+
+    def list_docs(self, path:DocPath) -> List[Doc]:
+        return self.lister.list_docs(path)
 
     def get_labels(self, path:DocPath) -> JsonDict:
         labels = self._get_dict(path, self._labels_filename)
