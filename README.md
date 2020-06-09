@@ -70,7 +70,7 @@ Cdocs has several ways of getting content:
 ```{{ get_doc('/app/home/teams/todos/assignee#edit_assignee') }}```.
 *get_compose_doc* requires the compose template be *.xml*, *.html* or *.md*. A compose doc could be referenced by a concat file, or vice versa, but the reference will only include the file contents; it will not be transformed.
  - **get_labels**: labels as json dicts for paths like ```/x/y/z``` found as ```[root]/x/y/z/labels.json```. Labels are transformed in the same way as docs, except that the keys of the json dict are individual templates. A label can pull in a doc in the same way that a doc is embedded in a compose doc. Labels that pull in docs are tricky because the docs pulled in may or may not correctly handle any label replacements used with tokens.json, depending on any circular references.
- - **list_docs**: returns a list of simple names of docs below the docpath. This method will return [```/x/y/z/a.xml```, ```/x/y/z/b.xml```] (actually [```'a.xml'```,```'b.xml'```] for ```/x/y/z``` but it won't return ```/x/y/z.xml``` (or, actually, ```'z.xml'```).
+ - **list_docs**: returns a list of simple names of docs below the docpath. This method will return [```/x/y/z/a.xml```, ```/x/y/z/b.xml```] (actually [```'a.xml'```,```'b.xml'```] for ```/x/y/z``` but it won't include ```/x/y/z.xml``` (or, actually, the simple name ```'z.xml'```).
 
 <img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/labels.png"/>
 
