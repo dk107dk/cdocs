@@ -19,7 +19,7 @@ class ContextTests(unittest.TestCase):
         if self.off(): return
         metadata = ContextMetadata()
         roots = metadata.roots
-        self.assertEqual( len(roots), 4, msg="must be 4 roots" )
+        self.assertEqual( len(roots), 5, msg="must be 4 roots" )
 
     def test_accepts(self):
         self._print("ContextTests.test_accepts")
@@ -28,7 +28,7 @@ class ContextTests(unittest.TestCase):
         accepts = metadata.accepts
         if self.noise: self._print(f"accepts: {accepts}")
         self.assertIsNotNone( accepts, msg="accepts must not be None")
-        self.assertEqual(len(accepts), 4, msg=f"must be 4 keys in accepts, not {accepts}")
+        self.assertEqual(len(accepts), 5, msg=f"must be 4 keys in accepts, not {accepts}")
         self.assertIsNotNone( accepts["images"], msg="accepts must have an 'images' key")
         images = accepts["images"]
         self.assertEqual(len(images), 4, msg="must be 4 items in images")
@@ -44,7 +44,7 @@ class ContextTests(unittest.TestCase):
         accceptedby = metadata.accepted_by
         self._print(f"accceptedby: {accceptedby}")
         self.assertIsNotNone( accceptedby, msg="accceptedby must not be None")
-        self.assertEqual(len(accceptedby), 6, msg=f"must be 6 keys in accceptedby, not {accceptedby}")
+        self.assertEqual(len(accceptedby), 7, msg=f"must be 6 keys in accceptedby, not {accceptedby}")
         self.assertIsNotNone( accceptedby["cdocs"], msg="accepts must have a 'cdocs' key")
         cdocs = accceptedby["cdocs"]
         self.assertEqual(len(cdocs), 2, msg="must be 2 items in cdocs")
@@ -98,7 +98,7 @@ class ContextTests(unittest.TestCase):
         metadata = ContextMetadata()
         context = Context(metadata)
         cdocs = context.cdocs
-        self.assertEqual( len(cdocs), 4, msg=f"must be 4 cdocs, not {len(cdocs)} from {cdocs}" )
+        self.assertEqual( len(cdocs), 5, msg=f"must be 4 cdocs, not {len(cdocs)} from {cdocs}" )
 
     def test_get_known_type_doc(self):
         self._print(f"ContextTests.test_get_known_type_doc")
@@ -165,13 +165,13 @@ class ContextTests(unittest.TestCase):
         metadata = ContextMetadata()
         context = Context(metadata)
         doc = context.get_doc_from_roots(["internal"], docpath)
-        print(f"test_get_compose_doc_with_roots: doc from 'internal': {doc}")
+        self._print(f"test_get_compose_doc_with_roots: doc from 'internal': {doc}")
         assignee = doc.find('assignee in company starstruck!')
         self.assertNotEqual(-1, assignee, msg=f'{docpath} must include "assignee in company starstruck!" in {doc}')
         edit = doc.find('edit assignee')
         self.assertNotEqual(-1, edit, msg=f'{docpath} must include "edit assignee" in {doc}')
         doc = context.get_doc_from_roots(["public"], docpath)
-        print(f"test_get_compose_doc_with_roots: doc from 'public': {doc}")
+        self._print(f"test_get_compose_doc_with_roots: doc from 'public': {doc}")
         notfound = doc.find("Not found!")
         self.assertNotEqual(notfound, -1, msg=f'doc at {docpath} must include "Not found!"')
 

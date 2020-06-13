@@ -7,12 +7,12 @@ ROOT = PATH + "/" + ROOTNAME
 
 class ApiUiTests(unittest.TestCase):
 
-    noise = True
+    noise = False
     def _print(self, text:str) -> None:
         if self.noise:
             print(text)
 
-    def test_index(self):
+    def test_index_html(self):
         self._print(f"ApiUiTests.test_index")
         cdocs = Cdocs(ROOT)
         doc = cdocs.get_doc("/v1/index.html")
