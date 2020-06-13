@@ -48,8 +48,11 @@ class SimpleConfig(Config):
         return items
 
     def get_matching_key_for_value(self, group:str, value:str) -> Optional[str]:
+        logging.info(f"SimpleConfig.get_matching_key_for_value: group: {group}, value: {value}")
         items = self.get_items(group)
+        logging.info(f"SimpleConfit.get_matching_key_for_value: items: {items}")
         for item in items:
+            logging.info(f"SimpleConfit.get_matching_key_for_value: {item[1]} == {value}: {item[1] == value}")
             if item[1] == value:
                 return item[0]
         return None

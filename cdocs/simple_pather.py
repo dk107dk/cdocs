@@ -39,6 +39,8 @@ class SimplePather(Pather):
         else:
             path = path[0:path.find(self._hashmark)]
         root = self._docs_path
+        if path is None:
+            logging.error(f"SimplePather.get_full_file_path_for_root: path is None")
         path = os.path.join(root, path)
         apath = path
         logging.info(f"SimplePather.get_full_file_path_for_root: apath: {apath}")

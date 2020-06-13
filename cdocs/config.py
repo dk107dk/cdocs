@@ -2,6 +2,10 @@ import abc
 from typing import Optional, List, Tuple
 from cdocs.physical import Physical
 
+class ConfigException(Exception):
+    pass
+
+
 class Config(Physical, metaclass=abc.ABCMeta):
     """
     Config is a sectioned key-value store interface that follows configparser

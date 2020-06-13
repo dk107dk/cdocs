@@ -2,7 +2,7 @@ from typing import Optional, List, Dict
 from jinja2 import Template
 import logging
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDocs
-from cdocs.config import Config
+from cdocs.config import Config, ConfigException
 from cdocs.pather import Pather
 from cdocs.reader import Reader
 from cdocs.lister import Lister
@@ -44,6 +44,8 @@ class Cdocs(ContextualDocs, Physical):
         self._context:MultiContextDocs = context
         self._docs_path:FilePath = docspath
         self._rootname = cfg.get_matching_key_for_value("docs", docspath)
+        if self._rootname is None:
+            raise ConfigException(f"Cdocs.__init__: no rootname for {docspath}")
         self._set_ext()
         self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
@@ -57,7 +59,9 @@ class Cdocs(ContextualDocs, Physical):
         self._filer = SimpleFiler()
         self._transformer = SimpleTransformer(self)
         self._reader = SimpleReader() if cfg.reader is None else cfg.reader
-        self._finder = SimpleFinder(docspath) if cfg.finder is None else cfg.finder
+        self._finder = SimpleFinder(self) if cfg.finder is None else cfg.finder
+        self._accepts = None
+
         if cfg.pather is None:
             metadata = ContextMetadata()
             metadata.config = cfg
@@ -130,6 +134,14 @@ hash: {self._hashmark}, plus: {self._plus}")
     @property
     def exts(self):
         return self._exts
+
+    @property
+    def accepts(self):
+        if self._accepts is None:
+            logging.info(f"Cdocs.accepts: rootname: {self.rootname}")
+            self._accepts = self.config.get("accepts", self.rootname)
+            logging.info(f"Cdocs.accepts: accepts: {self._accepts}")
+        return self._accepts
 
 # ===================
 # abc methods
