@@ -115,7 +115,7 @@ class Context(ContextualDocs, MultiContextDocs):
                 self._nosplitplus = nsp.split(',')
             if len(self._nosplitplus) > 0:
                 rootnames = [name for name in rootnames if not name in self._nosplitplus]
-                print(f"Context.get_doc_from_roots: nsp filtered rootnames: {rootnames}")
+                logging.info(f"Context.get_doc_from_roots: nsp filtered rootnames: {rootnames}")
             # split into paths and call get_doc_from_roots on each, then concat
             #
             #  /r/o/o/t.html#fish
@@ -127,23 +127,23 @@ class Context(ContextualDocs, MultiContextDocs):
             #  /r/o/o/t
             # needs to become /r/o/o/t
             #
-            print(f"Context.get_doc_from_roots: path: {path}")
-            print(f"Context.get_doc_from_roots: rootnames: {rootnames}")
-            print(f"Context.get_doc_from_roots: notfound: {notfound}")
-            print(f"Context.get_doc_from_roots: splitplus: {splitplus}")
+            logging.info(f"Context.get_doc_from_roots: path: {path}")
+            logging.info(f"Context.get_doc_from_roots: rootnames: {rootnames}")
+            logging.info(f"Context.get_doc_from_roots: notfound: {notfound}")
+            logging.info(f"Context.get_doc_from_roots: splitplus: {splitplus}")
             paths = path.split(plusmark)
-            print(f"Context.get_doc_from_roots: paths: {paths}")
+            logging.info(f"Context.get_doc_from_roots: paths: {paths}")
             rootpath = paths[0]
-            print(f"Context.get_doc_from_roots: rootpath: {rootpath}")
+            logging.info(f"Context.get_doc_from_roots: rootpath: {rootpath}")
             hashmark = self._metadata.config.get("filenames", "hashmark")
-            print(f"Context.get_doc_from_roots: hashmark: {hashmark}")
+            logging.info(f"Context.get_doc_from_roots: hashmark: {hashmark}")
             rootpath = rootpath.split( hashmark )[0]
-            print(f"Context.get_doc_from_roots: rootpath: {rootpath}")
+            logging.info(f"Context.get_doc_from_roots: rootpath: {rootpath}")
             paths = [p if p.find(rootpath) > -1 else rootpath + "/" + p for p in paths]
-            print(f"Context.get_doc_from_roots: paths: {paths}")
+            logging.info(f"Context.get_doc_from_roots: paths: {paths}")
             result = []
             for path in paths:
-                print(f"Context.get_doc_from_roots: .... next path: {path}")
+                logging.info(f"Context.get_doc_from_roots: .... next path: {path}")
                 r = self.get_doc_from_roots(rootnames, path, notfound)
                 if r is not None:
                     result.append(r)
