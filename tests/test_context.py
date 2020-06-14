@@ -6,13 +6,13 @@ import os
 
 class ContextTests(unittest.TestCase):
 
-    noise = False
+    noise = True
     def _print(self, text:str) -> None:
         if self.noise:
             print(text)
 
     def off(self) -> bool:
-        return False
+        return True
 
     def test_roots(self):
         self._print("ContextTests.test_roots")
@@ -124,6 +124,19 @@ class ContextTests(unittest.TestCase):
         self.assertNotEqual(-1,point, msg="must include 'assignee in company starstruck!'")
         point = txt.find("my app name: you should see: my app's name is fruit")
         self.assertNotEqual(-1,point, msg="must include 'my app name: you should see: my app's name is fruit'")
+
+
+    def test_get_doc_just_checking(self) :
+        self._print(f"ContextTests.test_get_doc_just_checking")
+        #if self.off(): return
+        metadata = ContextMetadata()
+        context = Context(metadata)
+        docpath = "/app/home/teams*delete_assignee"
+        txt = context.get_doc(docpath)
+        self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
+        self._print(f"ContextTests.test_get_doc_just_checking: doing get_docs. the doc txt is: {txt}")
+
+
 
     def test_get_labels(self):
         self._print(f"ContextTests.test_get_labels")

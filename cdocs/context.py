@@ -62,6 +62,8 @@ class Context(ContextualDocs, MultiContextDocs):
     def filter_root_names_for_path(self, roots:List[str], path:DocPath) -> List[str]:
         filetype = self.get_filetype(path)
         aroots = self.metadata.accepted_by.get(filetype)
+        if aroots is None:
+            aroots = []
         filtered = [item for item in roots if item in aroots]
         if roots != filtered:
             logging.info(f"Context.get_labels_from_roots: filtered {roots} to {filtered}")
@@ -93,11 +95,11 @@ class Context(ContextualDocs, MultiContextDocs):
 
     def get_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
         rootnames = self.filter_root_names_for_path(rootnames, path)
+        print(f"Context.get_doc_from_roots: rootnames: {rootnames}")
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
+            print(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs}")
             doc = cdocs.get_doc(path)
             if doc is not None:
                 return doc
-            else:
-                return None
 

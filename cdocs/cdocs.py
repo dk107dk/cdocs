@@ -220,6 +220,7 @@ hash: {self._hashmark}, plus: {self._plus}")
             path = path[0:plus]
         filepath = self._pather.get_full_file_path_for_root(path, root)
         logging.info(f"Cdocs._get_doc_for_root: fp {filepath}")
+        print(f"Cdocs._get_doc_for_root: fp {filepath}")
         content = self._read_doc(filepath)
         content = self.transformer.transform(content, path, None, True)
         if len(pluspaths) > 0:
