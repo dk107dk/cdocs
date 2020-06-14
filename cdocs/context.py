@@ -50,7 +50,7 @@ class Context(ContextualDocs, MultiContextDocs):
     # ==== MultiContextDocs ==================
 
     def get_filetype( self, path:DocPath) -> str:
-        return SimpleFiler().get_filetype(path)
+        return SimpleFiler(self).get_filetype(path)
 
     def get_root_names_accepting_path( self, path:DocPath) -> List[str]:
         filetype = self.get_filetype(path)
@@ -77,29 +77,50 @@ class Context(ContextualDocs, MultiContextDocs):
             labels = { **cdocs.get_labels(path), **labels }
         return labels
 
-    def get_compose_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+    def get_compose_doc_from_roots(self, rootnames:List[str], path:DocPath, notfound:Optional[bool]=True) -> Optional[Doc]:
         rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
             doc = cdocs.get_compose_doc(path)
             if doc is not None:
                 return doc
+        if notfound:
+            return self._get_default_not_found()
 
-    def get_concat_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+    def get_concat_doc_from_roots(self, rootnames:List[str], path:DocPath, notfound:Optional[bool]=True) -> Optional[Doc]:
         rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
             doc = cdocs.get_concat_doc(path)
             if doc is not None:
                 return doc
+        if notfound:
+            return self._get_default_not_found()
 
-    def get_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+    def get_doc_from_roots(self, rootnames:List[str], path:DocPath, notfound:Optional[bool]=True) -> Optional[Doc]:
         rootnames = self.filter_root_names_for_path(rootnames, path)
-        print(f"Context.get_doc_from_roots: rootnames: {rootnames}")
+        logging.info(f"Context.get_doc_from_roots: rootnames: {rootnames}")
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
-            print(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs}")
-            doc = cdocs.get_doc(path)
+            logging.info(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs}")
+            doc = cdocs.get_doc(path, False)
+            logging.info(f"found doc: {type(doc)}")
             if doc is not None:
                 return doc
+        if notfound:
+            return self._get_default_not_found()
 
+    def _get_default_not_found(self) -> Optional[Doc]:
+        notfound = self._metadata.config.get("defaults", "notfound")
+        if notfound is None:
+            return None
+        if notfound.find("/") == -1:
+            logging.error(f"Context.get_doc_from_roots: notfound {notfound} should be in form root/docpath. you should fix this.")
+            return None
+        root = notfound[0:notfound.index("/")]
+        docpath = notfound[notfound.index("/"):]
+        cdocs = self.keyed_cdocs[root]
+        doc = cdocs.get_doc(docpath, False)
+        if doc is None:
+            logging.error(f"Context.get_doc_from_roots: notfound {notfound} in root: {root} with docpath: {docpath} is None. you should fix this.")
+        return doc

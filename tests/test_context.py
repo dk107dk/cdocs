@@ -6,13 +6,13 @@ import os
 
 class ContextTests(unittest.TestCase):
 
-    noise = True
+    noise = False
     def _print(self, text:str) -> None:
         if self.noise:
             print(text)
 
     def off(self) -> bool:
-        return True
+        return False
 
     def test_roots(self):
         self._print("ContextTests.test_roots")
@@ -125,18 +125,16 @@ class ContextTests(unittest.TestCase):
         point = txt.find("my app name: you should see: my app's name is fruit")
         self.assertNotEqual(-1,point, msg="must include 'my app name: you should see: my app's name is fruit'")
 
-
     def test_get_doc_just_checking(self) :
         self._print(f"ContextTests.test_get_doc_just_checking")
-        #if self.off(): return
+        if self.off(): return
         metadata = ContextMetadata()
         context = Context(metadata)
         docpath = "/app/home/teams*delete_assignee"
         txt = context.get_doc(docpath)
+        # this doc could be a not-found doc. for what I need today that's fine.
         self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
         self._print(f"ContextTests.test_get_doc_just_checking: doing get_docs. the doc txt is: {txt}")
-
-
 
     def test_get_labels(self):
         self._print(f"ContextTests.test_get_labels")
@@ -158,7 +156,7 @@ class ContextTests(unittest.TestCase):
         metadata = ContextMetadata()
         context = Context(metadata)
         docpath = "/app/home/teams/todos/assignee"
-        txt = context.get_doc_from_roots(["images"], docpath)
+        txt = context.get_doc_from_roots(["images"], docpath, False)
         self.assertIsNone(txt, msg=f"doc at {docpath} in root 'images' must be none")
 
     def test_get_doc_from_right_root(self) :
@@ -177,7 +175,7 @@ class ContextTests(unittest.TestCase):
         docpath = "/app/home/teams"
         metadata = ContextMetadata()
         context = Context(metadata)
-        doc = context.get_doc_from_roots(["internal"], docpath)
+        doc = context.get_doc_from_roots(["internal"], docpath, False)
         self._print(f"test_get_compose_doc_with_roots: doc from 'internal': {doc}")
         assignee = doc.find('assignee in company starstruck!')
         self.assertNotEqual(-1, assignee, msg=f'{docpath} must include "assignee in company starstruck!" in {doc}')

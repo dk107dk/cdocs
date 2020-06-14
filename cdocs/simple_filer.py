@@ -5,8 +5,11 @@ from cdocs.filer import Filer
 
 class SimpleFiler(Filer):
 
-    def __init__(self):
+    def __init__(self, parent):
+        # parent can be either cdocs or context, but we can't hint.
+        # anyway for now it's passed pro forma.
         self._binary = ["gif","jpg","jpeg","png","pdf"]
+        self._parent = parent
 
     def get_filetype( self, path:Union[DocPath,FilePath]) -> str:
         filetype = ''

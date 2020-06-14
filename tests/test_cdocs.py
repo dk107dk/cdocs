@@ -16,6 +16,20 @@ class CdocsTests(unittest.TestCase):
     def off(self) -> bool:
         return True
 
+    def test_notfounds(self):
+        self._print(f"CdocsTests.test_notfounds")
+        if self.off(): return
+        cdocs1 = Cdocs(PATH)
+        doc = cdocs1.get_404()
+        self._print(f"test_notfounds: for {cdocs1}: {doc}")
+        found = doc.find("NO")
+        self.assertNotEqual(found, -1, msg=f"not found in {cdocs1.rootname} must include 'NO'")
+        cdocs2 = Cdocs(PATH2)
+        doc = cdocs2.get_404()
+        self._print(f"test_notfounds: for {cdocs2}: {doc}")
+        found = doc.find("TRY")
+        self.assertNotEqual(found, -1, msg=f"not found in {cdocs2.rootname} must include 'NO'")
+
     def test_get_doc_root_path(self):
         self._print(f"CdocsTests.test_get_doc_root_path")
         if self.off(): return
@@ -57,7 +71,7 @@ class CdocsTests(unittest.TestCase):
         self._print(f"test_get_doc_not_found: the doc found is: {txt}")
         self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
         self._print(f"test_get_doc_not_found: doing get_docs. the doc txt is: {txt}")
-        point = txt.find("Not found!")
+        point = txt.find("NO")
         self.assertNotEqual(-1,point, msg=f"txt: {txt} must include 'Not found!'")
 
 
@@ -182,7 +196,7 @@ class CdocsTests(unittest.TestCase):
 
     def test_get_compose_doc(self):
         self._print(f"CdocsTests.test_get_compose_doc")
-        if self.off(): return
+        #if self.off(): return
         docpath = "/app/home/teams/compose.html"
         cdocs = Cdocs(PATH)
         doc = cdocs.get_compose_doc(docpath)

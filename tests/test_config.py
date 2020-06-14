@@ -9,7 +9,7 @@ class ConfigTests(unittest.TestCase):
             print(text)
 
     def off(self) -> bool:
-        return True
+        return False
 
     def test_get_config_items(self):
         self._print(f"ConfigTests.test_get_config_items")
@@ -17,7 +17,7 @@ class ConfigTests(unittest.TestCase):
         cfg = SimpleConfig()
         items = cfg.get_items("docs", ["public"])
         self._print(f"test_get_config_items: items: {items}")
-        self.assertEqual( len(items), 3, msg=f"must be 3 items for docs, not {items}" )
+        self.assertEqual( len(items), 4, msg=f"must be 3 items for docs, not {items}" )
         items = cfg.get_items("fish")
         self.assertEqual( len(items), 0, msg=f"must be 0 items for fish, not {items}" )
 

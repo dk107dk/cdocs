@@ -50,7 +50,7 @@ class SimpleFinder(Finder):
                 logging.info(f"SimpleFinder._join: j: {j}")
                 return j
             else:
-                raise FinderException(f"SimpleFinder._join: {pointer} has '.' and {ext} not in {accepts}")
+                raise FinderException(f"SimpleFinder._join: {filename}, {pointer} has '.' and '{ext}' not in {accepts}")
 
     def _read_json(self, path) -> JsonDict:
         try:

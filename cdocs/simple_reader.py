@@ -7,6 +7,9 @@ import traceback
 
 class SimpleReader(Reader):
 
+    def __init__(self, cdocs):
+        self._cdocs = cdocs
+
     def read(self, filepath:FilePath) -> Doc:
         try:
             with open(filepath, 'rb') as f:

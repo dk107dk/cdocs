@@ -7,6 +7,7 @@ from cdocs.pather import Pather
 from cdocs.reader import Reader
 from cdocs.lister import Lister
 from cdocs.finder import Finder
+from cdocs.filer import Filer
 from cdocs.transformer import Transformer
 from cdocs.concatter import Concatter
 from cdocs.simple_transformer import SimpleTransformer
@@ -51,16 +52,16 @@ class Cdocs(ContextualDocs, Physical):
         self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
+        self._accepts = None
         #
         # these helpers can be swapped in and out as needed
         #
         self._concatter = SimpleConcatter(self)
         self._lister = SimpleLister(self)
-        self._filer = SimpleFiler()
+        self._filer = SimpleFiler(self)
         self._transformer = SimpleTransformer(self)
-        self._reader = SimpleReader() if cfg.reader is None else cfg.reader
+        self._reader = SimpleReader(self) if cfg.reader is None else cfg.reader
         self._finder = SimpleFinder(self) if cfg.finder is None else cfg.finder
-        self._accepts = None
 
         if cfg.pather is None:
             metadata = ContextMetadata()
@@ -69,12 +70,21 @@ class Cdocs(ContextualDocs, Physical):
             pass
         else:
             self._pather = cfg.pather
-        logging.info(f"Cdocs.__init__: path: {self._docs_path}, exts: {self._exts}, \
-tokens: {self._tokens_filename}, labels: {self._labels_filename}, \
-hash: {self._hashmark}, plus: {self._plus}")
+        logging.info( str(self) )
+
+    def __str__(self):
+        return f"Cdocs: type(self): "+\
+               f"path: {self._docs_path}, "+\
+               f"accepts: {self._accepts}, "+\
+               f"exts: {self._exts}, "+\
+               f"tokens: {self._tokens_filename}, "+\
+               f"labels: {self._labels_filename}, "+\
+               f"hash: {self._hashmark}, "+\
+               f"plus: {self._plus}"
+
 
     def _set_ext(self) -> None:
-        ext = self.config.get_with_default("formats", "ext", "xml")
+        ext = self.config.get_with_default("defaults", "ext", "xml")
         ext = self.config.get_with_default("formats", self.rootname, ext)
         if ext.find(",") > -1:
             self._exts = ext.split(",")
@@ -91,41 +101,73 @@ hash: {self._hashmark}, plus: {self._plus}")
     def concatter(self) -> Concatter:
         return self._concatter
 
+    @concatter.setter
+    def concatter(self, c:Concatter) -> None:
+        self._concatter = c
+
     @property
     def reader(self) -> Reader:
         return self._reader
+
+    @reader.setter
+    def reader(self, val:Reader) -> None:
+        self._reader = val
 
     @property
     def finder(self) -> Finder:
         return self._finder
 
+    @finder.setter
+    def finder(self, val:Finder) -> None:
+        self._finder = val
+
     @property
     def pather(self) -> Pather:
         return self._pather
+
+    @pather.setter
+    def pather(self, val:Pather) -> None:
+        self._pather = val
 
     @property
     def lister(self) -> Lister:
         return self._lister
 
+    @lister.setter
+    def lister(self, val:Lister) -> None:
+        self._lister = val
+
     @property
     def context(self) -> MultiContextDocs:
         return self._context
+
+    @context.setter
+    def context(self, val:MultiContextDocs) -> None:
+        self._context = val
 
     @property
     def transformer(self) -> Transformer:
         return self._transformer
 
-    @context.setter
-    def context(self, ctx:MultiContextDocs) -> None:
-        self._context = ctx
+    @transformer.setter
+    def transformer(self, val:Transformer) -> None:
+        self._transformer = val
 
     @property
     def filer(self):
         return self._filer
 
+    @filer.setter
+    def filer(self, val:Filer) -> None:
+        self._filer = val
+
     @property
     def config(self):
         return self._config
+
+    @config.setter
+    def config(self, val:Config) -> None:
+        self._config = val
 
     @property
     def rootname(self):
@@ -159,6 +201,7 @@ hash: {self._hashmark}, plus: {self._plus}")
             raise DocNotFoundException("path can not be None")
         filepath:FilePath = self._pather.get_full_file_path(path)
         try:
+            print(f"Cdocs.get_compose_doc: fp: {filepath}")
             content = self._read_doc(filepath)
             tokens:dict = self.get_tokens(path[0:path.rindex('/')])
             content = self.transformer.transform(content, path, tokens, True)
@@ -178,15 +221,18 @@ hash: {self._hashmark}, plus: {self._plus}")
         content = self.concatter.concat(paths)
         return Doc(content)
 
-    def get_doc(self, path:DocPath) -> Doc:
-        return self._get_doc(path, True)
+    def get_doc(self, path:DocPath, notfound:Optional[bool]=True) -> Doc:
+        return self._get_doc(path, notfound)
 
-    def _get_doc(self, path:DocPath, notfound:Optional[bool]=False) -> Optional[Doc]:
+    def _get_doc(self, path:DocPath, notfound) -> Optional[Doc]:
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.') > -1:
             if self.filer.get_filetype(path) == 'cdocs':
                 raise BadDocPath("dots are not allowed in cdoc paths")
+        if notfound is None:
+            logging.warning("Cdocs._get_doc: notfound is None. you should fix this.")
+            notfound = False
         logging.info(f"Cdocs._get_doc: path: {path}")
         pluspaths = self._get_plus_paths(path)
         logging.info(f"Cdocs._get_doc: pluspaths {pluspaths}")
@@ -203,15 +249,14 @@ hash: {self._hashmark}, plus: {self._plus}")
 
     def get_404(self) -> Optional[Doc]:
         config = self.config
-        _404 = config.get_with_default("defaults", "notfound", None)
+        _404 = config.get_with_default("notfound", self._rootname, None)
+        logging.info(f"Cdocs.get_404: notfound in {self._rootname} is {_404}")
         if _404 is None:
             return None
-        index = _404.find("/")
-        root = _404[0:index]
-        path = _404[index+1:]
-        root = config.get("docs", root)
-        cdocs = Cdocs(root)
-        doc = cdocs._get_doc_for_root(path, [], root)
+        doc = self.get_doc(_404, False)
+        if doc is None:
+            logging.error(f"Cdocs.get_404: {self._rootname}'s notfound: {_404} is None. you shouldl fix this.")
+        print(f"Cdocs.get_404: doc: {doc}")
         return doc
 
     def _get_doc_for_root(self, path:DocPath, pluspaths:List[DocPath], root:FilePath) -> Doc:
@@ -220,7 +265,6 @@ hash: {self._hashmark}, plus: {self._plus}")
             path = path[0:plus]
         filepath = self._pather.get_full_file_path_for_root(path, root)
         logging.info(f"Cdocs._get_doc_for_root: fp {filepath}")
-        print(f"Cdocs._get_doc_for_root: fp {filepath}")
         content = self._read_doc(filepath)
         content = self.transformer.transform(content, path, None, True)
         if len(pluspaths) > 0:
@@ -270,7 +314,7 @@ hash: {self._hashmark}, plus: {self._plus}")
     def _read_doc(self, path:FilePath) -> str:
         content = None
         available = self._reader.is_available(path)
-        logging.info(f"Cdocs._read_doc: {available}")
+        logging.error(f"Cdocs._read_doc: {path} is available: {available}")
         if available:
             content = self.reader.read(path)
             if self.filer.is_probably_not_binary(path):
