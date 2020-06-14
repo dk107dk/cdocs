@@ -20,6 +20,7 @@ class Context(ContextualDocs, MultiContextDocs):
         self._metadata = metadata
         self._keyed_cdocs = { k : Cdocs(v, metadata.config, self) for k,v in metadata.keyed_roots.items() }
         self._cdocs = [ v for k,v in self.keyed_cdocs.items() ]
+        self._nosplitplus = None
 
     @property
     def cdocs(self) -> List[Cdocs]:
@@ -41,8 +42,8 @@ class Context(ContextualDocs, MultiContextDocs):
     def get_compose_doc(self, path:DocPath) -> Optional[Doc]:
         return self.get_compose_doc_from_roots(self.metadata.root_names, path)
 
-    def get_doc(self, path:DocPath) -> Optional[Doc]:
-        return self.get_doc_from_roots(self.metadata.root_names, path)
+    def get_doc(self, path:DocPath, notfound:Optional[bool]=True, splitplus:Optional[bool]=True) -> Optional[Doc]:
+        return self.get_doc_from_roots(self.metadata.root_names, path, notfound, splitplus)
 
     def get_labels(self, path:DocPath) ->  Optional[JsonDict]:
         return self.get_labels_from_roots(self.metadata.root_names, path)
@@ -97,18 +98,70 @@ class Context(ContextualDocs, MultiContextDocs):
         if notfound:
             return self._get_default_not_found()
 
-    def get_doc_from_roots(self, rootnames:List[str], path:DocPath, notfound:Optional[bool]=True) -> Optional[Doc]:
-        rootnames = self.filter_root_names_for_path(rootnames, path)
-        logging.info(f"Context.get_doc_from_roots: rootnames: {rootnames}")
-        for _ in rootnames:
-            cdocs = self.keyed_cdocs[_]
-            logging.info(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs}")
-            doc = cdocs.get_doc(path, False)
-            logging.info(f"found doc: {type(doc)}")
-            if doc is not None:
-                return doc
-        if notfound:
-            return self._get_default_not_found()
+    def get_doc_from_roots(self, rootnames:List[str], path:DocPath, notfound:Optional[bool]=True, splitplus:Optional[bool]=True) -> Optional[Doc]:
+        """
+            rootnames: a list of named roots to search
+            path: the docpath. may have hash and plusses
+            notfound: if true, return a default notfound if no results
+            splitplus: if true, plus concats can be on different roots.
+                       i.e. for /x/y/z+a+b /x/y/z, /x/y/z/a, /x/y/z/b
+                       can all be on different roots.
+        """
+        plusmark = self._metadata.config.get("filenames", "plus")
+        plus = path.find( plusmark )
+        if plus > -1 and splitplus:
+            if self._nosplitplus is None:
+                nsp = self._metadata.config.get_with_default("defaults","nosplitplus", "")
+                self._nosplitplus = nsp.split(',')
+            if len(self._nosplitplus) > 0:
+                rootnames = [name for name in rootnames if not name in self._nosplitplus]
+                print(f"Context.get_doc_from_roots: nsp filtered rootnames: {rootnames}")
+            # split into paths and call get_doc_from_roots on each, then concat
+            #
+            #  /r/o/o/t.html#fish
+            # needs to become /r/o/o
+            #
+            #  /r/o/o/t#fish
+            # needs to become /r/o/o/t
+            #
+            #  /r/o/o/t
+            # needs to become /r/o/o/t
+            #
+            print(f"Context.get_doc_from_roots: path: {path}")
+            print(f"Context.get_doc_from_roots: rootnames: {rootnames}")
+            print(f"Context.get_doc_from_roots: notfound: {notfound}")
+            print(f"Context.get_doc_from_roots: splitplus: {splitplus}")
+            paths = path.split(plusmark)
+            print(f"Context.get_doc_from_roots: paths: {paths}")
+            rootpath = paths[0]
+            print(f"Context.get_doc_from_roots: rootpath: {rootpath}")
+            hashmark = self._metadata.config.get("filenames", "hashmark")
+            print(f"Context.get_doc_from_roots: hashmark: {hashmark}")
+            rootpath = rootpath.split( hashmark )[0]
+            print(f"Context.get_doc_from_roots: rootpath: {rootpath}")
+            paths = [p if p.find(rootpath) > -1 else rootpath + "/" + p for p in paths]
+            print(f"Context.get_doc_from_roots: paths: {paths}")
+            result = []
+            for path in paths:
+                print(f"Context.get_doc_from_roots: .... next path: {path}")
+                r = self.get_doc_from_roots(rootnames, path, notfound)
+                if r is not None:
+                    result.append(r)
+            if len(result) == 0 and notfound:
+                return self._get_default_not_found()
+            return "".join(result)
+        else:
+            rootnames = self.filter_root_names_for_path(rootnames, path)
+            logging.info(f"Context.get_doc_from_roots: rootnames: {rootnames}")
+            for _ in rootnames:
+                cdocs = self.keyed_cdocs[_]
+                logging.info(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs}")
+                doc = cdocs.get_doc(path, False)
+                logging.info(f"found doc: {type(doc)}")
+                if doc is not None:
+                    return doc
+            if notfound:
+                return self._get_default_not_found()
 
     def _get_default_not_found(self) -> Optional[Doc]:
         notfound = self._metadata.config.get("defaults", "notfound")

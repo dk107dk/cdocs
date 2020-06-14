@@ -21,7 +21,7 @@ class SimpleConcatter(Concatter):
 
     def join(self, content:str, morecontent:str) -> str:
         if content is None:
-            logging.warn("SimpleConcatter.join: content is None. cannot concat.")
+            logging.warning("SimpleConcatter.join: content is None. cannot concat.")
             if morecontent is not None:
                 return morecontent
             else:
