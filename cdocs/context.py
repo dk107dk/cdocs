@@ -95,7 +95,7 @@ class Context(ContextualDocs, MultiContextDocs):
         return labels
 
     def get_tokens_from_roots(self, rootnames:List[str], path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
-        labels = {}
+        tokens = {}
         rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
