@@ -94,9 +94,6 @@ class Cdocs(ContextualDocs, Physical):
     def get_doc_root(self) -> FilePath:
         return FilePath(self._docs_path)
 
-    def get_tokens(self, path:DocPath) -> JsonDict:
-        return self._get_dict(path, self._tokens_filename)
-
     @property
     def concatter(self) -> Concatter:
         return self._concatter
@@ -193,11 +190,14 @@ class Cdocs(ContextualDocs, Physical):
 # abc methods
 # ===================
 
+    def get_tokens(self, path:DocPath, recurse:Optional[bool]=True) -> JsonDict:
+        return self._get_dict(path, self._tokens_filename, recurse)
+
     def list_docs(self, path:DocPath) -> List[Doc]:
         return self.lister.list_docs(path)
 
-    def get_labels(self, path:DocPath) -> JsonDict:
-        labels = self._get_dict(path, self._labels_filename)
+    def get_labels(self, path:DocPath, recurse:Optional[bool]=True) -> JsonDict:
+        labels = self._get_dict(path, self._labels_filename, recurse)
         return self._transform_labels(path, labels)
 
     def get_compose_doc(self, path:DocPath) -> Doc:
@@ -330,9 +330,9 @@ class Cdocs(ContextualDocs, Physical):
         logging.info(f"Cdocs._read_doc: returning: {content}")
         return content
 
-    def _get_dict(self, path:str, filename:str) -> JsonDict:
+    def _get_dict(self, path:str, filename:str, recurse:Optional[bool]=True) -> JsonDict:
         path = path.strip('/\\')
-        return JsonDict(self.finder.find_tokens(path, filename))
+        return JsonDict(self.finder.find_tokens(path, filename, recurse))
 
 
 

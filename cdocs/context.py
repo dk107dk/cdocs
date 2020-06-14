@@ -45,8 +45,14 @@ class Context(ContextualDocs, MultiContextDocs):
     def get_doc(self, path:DocPath, notfound:Optional[bool]=True, splitplus:Optional[bool]=True) -> Optional[Doc]:
         return self.get_doc_from_roots(self.metadata.root_names, path, notfound, splitplus)
 
-    def get_labels(self, path:DocPath) ->  Optional[JsonDict]:
-        return self.get_labels_from_roots(self.metadata.root_names, path)
+    def get_labels(self, path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
+        return self.get_labels_from_roots(self.metadata.root_names, path, recurse)
+
+    def get_tokens(self, path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
+        return self.get_tokens_from_roots(self.metadata.root_names, path, recurse)
+
+    def list_docs(self, path:DocPath) -> List[Doc]:
+        return self.list_docs_from_roots(self.metadata.root_names, path)
 
     # ==== MultiContextDocs ==================
 
@@ -67,16 +73,34 @@ class Context(ContextualDocs, MultiContextDocs):
             aroots = []
         filtered = [item for item in roots if item in aroots]
         if roots != filtered:
-            logging.info(f"Context.get_labels_from_roots: filtered {roots} to {filtered}")
+            logging.info(f"Context.filter_root_names_for_path: filtered {roots} to {filtered}")
         return filtered
 
-    def get_labels_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
+    def list_docs_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
+        docs = []
+        rootnames = self.filter_root_names_for_path(rootnames, path)
+        for _ in rootnames:
+            cdocs = self.keyed_cdocs[_]
+            somedocs = cdocs.list_docs(path)
+            for doc in somedocs:
+                docs.append(doc)
+        return docs
+
+    def get_labels_from_roots(self, rootnames:List[str], path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
         labels = {}
         rootnames = self.filter_root_names_for_path(rootnames, path)
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
-            labels = { **cdocs.get_labels(path), **labels }
+            labels = { **cdocs.get_labels(path, recurse), **labels }
         return labels
+
+    def get_tokens_from_roots(self, rootnames:List[str], path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
+        labels = {}
+        rootnames = self.filter_root_names_for_path(rootnames, path)
+        for _ in rootnames:
+            cdocs = self.keyed_cdocs[_]
+            tokens = { **cdocs.get_tokens(path, recurse), **tokens }
+        return tokens
 
     def get_compose_doc_from_roots(self, rootnames:List[str], path:DocPath, notfound:Optional[bool]=True) -> Optional[Doc]:
         rootnames = self.filter_root_names_for_path(rootnames, path)

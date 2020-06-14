@@ -5,6 +5,7 @@ import os
 PATH:str = "/Users/davidkershaw/dev/cdocs/docs/example"
 PATH2:str = "/Users/davidkershaw/dev/cdocs/docs/internal"
 JSON:str = "/Users/davidkershaw/dev/cdocs/docs/json"
+APIUI:str = "/Users/davidkershaw/dev/cdocs/docs/apiui"
 
 class CdocsTests(unittest.TestCase):
 
@@ -142,6 +143,35 @@ class CdocsTests(unittest.TestCase):
         self.assertIn("my_app_name", labels, msg=f"labels at {docpath} must include key 'my_app_name'")
         self.assertEqual("my app's name is fruit", labels["my_app_name"], msg=f"label my app name must == my app's name is fruit")
         self.assertEqual("starstruck", labels["company"], msg=f"label company must == starstruck")
+
+
+    def test_get_labels_no_recurse(self):
+        self._print(f"CdocsTests.test_get_labels_no_recurse")
+        if self.off(): return
+        docpath1 = "/v1/config/names"
+        docpath2 = "/v1/config"
+        cdocs = Cdocs(APIUI)
+
+        labels = cdocs.get_labels(docpath1)
+        self._print(f"test_get_labels: the labels are: {labels}")
+        self.assertIn("docroot", labels, msg=f"labels at {docpath1} must include key 'docroot'")
+        self.assertIn("formats", labels, msg=f"labels at {docpath1} must include key 'format'")
+
+        labels = cdocs.get_labels(docpath1, False)
+        self._print(f"test_get_labels: the labels are: {labels}")
+        self.assertIn("docroot", labels, msg=f"labels at {docpath1} must include key 'docroot'")
+        self.assertNotIn("formats", labels, msg=f"labels at {docpath1} must not include key 'format'")
+
+        labels = cdocs.get_labels(docpath2, False)
+        self._print(f"test_get_labels: the labels are: {labels}")
+        self.assertNotIn("docroot", labels, msg=f"labels at {docpath2} must not include key 'docroot'")
+        self.assertIn("formats", labels, msg=f"labels at {docpath2} must include key 'format'")
+
+        labels = cdocs.get_labels(docpath2, True)
+        self._print(f"test_get_labels: the labels are: {labels}")
+        self.assertNotIn("docroot", labels, msg=f"labels at {docpath2} must not include key 'docroot'")
+        self.assertIn("formats", labels, msg=f"labels at {docpath2} must include key 'format'")
+
 
     def test_get_filename(self):
         self._print(f"CdocsTests.test_get_filename")

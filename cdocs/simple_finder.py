@@ -4,6 +4,7 @@ import json
 import logging
 from cdocs.contextual_docs import DocPath, FilePath, JsonDict
 from cdocs.finder import Finder
+from typing import Optional
 
 class FinderException(Exception):
     pass
@@ -14,16 +15,16 @@ class SimpleFinder(Finder):
         self._cdocs = cdocs
         self._docroot = cdocs.get_doc_root()
 
-    def find_tokens(self, path:DocPath=None, filename:str="tokens.json" ) -> JsonDict:
+    def find_tokens(self, path:DocPath=None, filename:str="tokens.json", recurse:Optional[bool]=True) -> JsonDict:
         """ first checks "public", then other roots, last "internal". prefered in that order """
         tokens = JsonDict(dict())
         if path is None:
             return tokens
         pointer = os.path.join(self._docroot, path)
-        tokens = self._find_tokens( self._docroot, pointer, tokens, filename)
+        tokens = self._find_tokens( self._docroot, pointer, tokens, filename, recurse)
         return tokens
 
-    def _find_tokens( self, root:FilePath, pointer:FilePath, tokens:JsonDict, filename:str) -> JsonDict:
+    def _find_tokens( self, root:FilePath, pointer:FilePath, tokens:JsonDict, filename:str, recurse:Optional[bool]=True ) -> JsonDict:
         if pointer == "" or pointer is None:
             raise FinderException(f"_find_tokens got bad pointer: {pointer} in {root}")
         if pointer == root:
@@ -31,9 +32,12 @@ class SimpleFinder(Finder):
         tfile = self._join(pointer, filename)
         tdict = self._read_json(tfile)
         tokens = {**tdict, **tokens}
-        end = int( pointer.rfind("/") )
-        pointer = pointer[0:end]
-        return self._find_tokens(root, pointer, tokens, filename)
+        if recurse:
+            end = int( pointer.rfind("/") )
+            pointer = pointer[0:end]
+            return self._find_tokens(root, pointer, tokens, filename)
+        else:
+            return tokens
 
     def _join(self, pointer:FilePath, filename:str) -> FilePath:
         dot = pointer.find(".")

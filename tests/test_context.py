@@ -128,7 +128,7 @@ class ContextTests(unittest.TestCase):
         accceptedby = metadata.accepted_by
         self._print(f"accceptedby: {accceptedby}")
         self.assertIsNotNone( accceptedby, msg="accceptedby must not be None")
-        self.assertEqual(len(accceptedby), 7, msg=f"must be 6 keys in accceptedby, not {accceptedby}")
+        self.assertEqual(len(accceptedby), 7, msg=f"must be 7 keys in accceptedby, not {accceptedby}")
         self.assertIsNotNone( accceptedby["cdocs"], msg="accepts must have a 'cdocs' key")
         cdocs = accceptedby["cdocs"]
         self.assertEqual(len(cdocs), 2, msg="must be 2 items in cdocs")
@@ -224,10 +224,11 @@ class ContextTests(unittest.TestCase):
         self._print(f"ContextTests.test_get_labels")
         if self.off(): return
         docpath = "/app/home/teams/todos/assignee"
+        #docpath = "/v1/test/fish"
         metadata = ContextMetadata()
         context = Context(metadata)
         labels = context.get_labels(docpath)
-        self._print(f"test_get_labels: the labels are: {labels}")
+        print(f"test_get_labels: the labels are: {labels}")
         self.assertIn("app", labels, msg=f"labels at {docpath} must include key 'app'")
         self.assertIn("team", labels, msg=f"labels at {docpath} must include key 'team'")
         self.assertIn("my_app_name", labels, msg=f"labels at {docpath} must include key 'my_app_name'")

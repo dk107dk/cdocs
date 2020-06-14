@@ -33,10 +33,19 @@ class MultiContextDocs(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def get_doc_from_roots(self, rootnames:List[str], path:DocPath) -> Optional[Doc]:
+    def get_doc_from_roots(self, rootnames:List[str], path:DocPath, \
+                           notfound:Optional[bool]=True, \
+                           splitplus:Optional[bool]=True) -> Optional[Doc]:
         pass
 
     @abc.abstractmethod
-    def get_labels_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
+    def get_labels_from_roots(self, rootnames:List[str], path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
         pass
 
+    @abc.abstractmethod
+    def get_tokens_from_roots(self, rootnames:List[str], path:DocPath, recurse:Optional[bool]=True) ->  Optional[JsonDict]:
+        pass
+
+    @abc.abstractmethod
+    def list_docs_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
+        pass

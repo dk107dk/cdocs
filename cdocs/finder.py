@@ -1,5 +1,6 @@
 import abc
 from cdocs.contextual_docs import DocPath, JsonDict
+from typing import Optional
 
 
 class Finder(metaclass=abc.ABCMeta):
@@ -8,6 +9,6 @@ class Finder(metaclass=abc.ABCMeta):
     it finds them in the local filesystem.
     """
 
-    def find_tokens(self, path:DocPath=None, filename:str="tokens.json") -> JsonDict:
+    def find_tokens(self, path:DocPath=None, filename:str="tokens.json", recurse:Optional[bool]=True) -> JsonDict:
         pass
 
