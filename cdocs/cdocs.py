@@ -181,7 +181,11 @@ class Cdocs(ContextualDocs, Physical):
     def accepts(self):
         if self._accepts is None:
             logging.info(f"Cdocs.accepts: rootname: {self.rootname}")
-            self._accepts = self.config.get("accepts", self.rootname)
+            a = self.config.get("accepts", self.rootname)
+            if a is None:
+                self._accepts = ["cdocs"]
+            else:
+                self._accepts = a.split(",")
             logging.info(f"Cdocs.accepts: accepts: {self._accepts}")
         return self._accepts
 
@@ -256,7 +260,7 @@ class Cdocs(ContextualDocs, Physical):
         doc = self.get_doc(_404, False)
         if doc is None:
             logging.error(f"Cdocs.get_404: {self._rootname}'s notfound: {_404} is None. you shouldl fix this.")
-        print(f"Cdocs.get_404: doc: {doc}")
+        logging.info(f"Cdocs.get_404: doc: {doc}")
         return doc
 
     def _get_doc_for_root(self, path:DocPath, pluspaths:List[DocPath], root:FilePath) -> Doc:
@@ -278,9 +282,9 @@ class Cdocs(ContextualDocs, Physical):
 
     def _add_labels_to_tokens(self, path:DocPath, tokens:JsonDict) -> JsonDict:
         apath = path
-        if path.find(self._hashmark):
+        if path.find(self._hashmark) > -1:
             apath = apath[0:apath.find(self._hashmark)]
-        if apath.find(self._plus):
+        if apath.find(self._plus) > -1:
             apath = apath[0:apath.find(self._plus)]
         labels = self.get_labels(apath)
         ltokens = { "label__"+k:v for k,v in labels.items()}
@@ -314,7 +318,7 @@ class Cdocs(ContextualDocs, Physical):
     def _read_doc(self, path:FilePath) -> str:
         content = None
         available = self._reader.is_available(path)
-        logging.error(f"Cdocs._read_doc: {path} is available: {available}")
+        logging.info(f"Cdocs._read_doc: {path} is available: {available}")
         if available:
             content = self.reader.read(path)
             if self.filer.is_probably_not_binary(path):
@@ -328,7 +332,6 @@ class Cdocs(ContextualDocs, Physical):
 
     def _get_dict(self, path:str, filename:str) -> JsonDict:
         path = path.strip('/\\')
-        docroot = self.get_doc_root()
         return JsonDict(self.finder.find_tokens(path, filename))
 
 

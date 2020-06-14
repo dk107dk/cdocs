@@ -14,7 +14,7 @@ class CdocsTests(unittest.TestCase):
             print(text)
 
     def off(self) -> bool:
-        return True
+        return False
 
     def test_notfounds(self):
         self._print(f"CdocsTests.test_notfounds")
@@ -225,10 +225,10 @@ class CdocsTests(unittest.TestCase):
         if self.off(): return
         docpath = "/app/home+home_screen"
         cdocs = Cdocs(JSON)
-        print(f"CdocsTests.test_concat_json: root name: {cdocs.rootname}")
+        self._print(f"CdocsTests.test_concat_json: root name: {cdocs.rootname}")
         doc = cdocs.get_doc(docpath)
         self.assertIsNotNone(doc, msg=f'{docpath} must not return None')
-        print(f"CdocsTests.test_concat_json: doc: {doc}\n\n\n")
+        self._print(f"CdocsTests.test_concat_json: doc: {doc}\n\n\n")
         home = doc.find('{"how-to-use": "How to use My Home", "header": "Home Screen", "content": "The home screen is where you land after logging in."}')
         self.assertNotEqual(-1, home, msg=f'{docpath} must include the joined json, not: {doc}')
 

@@ -28,7 +28,6 @@ class SimpleFinder(Finder):
             raise FinderException(f"_find_tokens got bad pointer: {pointer} in {root}")
         if pointer == root:
             return tokens
-        logging.info(f"SimpleFinder._find_tokens: root: {root}, pointer: {pointer}, tokens: {tokens}, filename: {filename}")
         tfile = self._join(pointer, filename)
         tdict = self._read_json(tfile)
         tokens = {**tdict, **tokens}
@@ -41,16 +40,12 @@ class SimpleFinder(Finder):
         if dot == -1:
             return os.path.join(pointer, filename)
         else:
-            accepts = self._cdocs.accepts
             ext = pointer[pointer.rindex('.')+1:]
-            if ext in accepts:
-                p = pointer[0:pointer.rindex('/')]
-                logging.info(f"SimpleFinder._join: p: {p}")
-                j = os.path.join(p, filename)
-                logging.info(f"SimpleFinder._join: j: {j}")
-                return j
-            else:
-                raise FinderException(f"SimpleFinder._join: {filename}, {pointer} has '.' and '{ext}' not in {accepts}")
+            p = pointer[0:pointer.rindex('/')]
+            logging.info(f"SimpleFinder._join: p: {p}")
+            j = os.path.join(p, filename)
+            logging.info(f"SimpleFinder._join: j: {j}")
+            return j
 
     def _read_json(self, path) -> JsonDict:
         try:
