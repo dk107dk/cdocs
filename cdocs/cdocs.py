@@ -1,6 +1,8 @@
 from typing import Optional, List, Dict
+from datetime import datetime
 from jinja2 import Template
 import logging
+import os
 from cdocs.contextual_docs import Doc, DocPath, FilePath, JsonDict, ContextualDocs
 from cdocs.config import Config, ConfigException
 from cdocs.pather import Pather
@@ -21,7 +23,7 @@ from cdocs.simple_filer import SimpleFiler
 from cdocs.physical import Physical
 from cdocs.multi_context_docs import MultiContextDocs
 from cdocs.context_metadata import ContextMetadata
-
+from cdocs.changer import Changer
 
 class DocNotFoundException(Exception):
     pass
@@ -36,7 +38,7 @@ class ComposeDocException(Exception):
     pass
 
 
-class Cdocs(ContextualDocs, Physical):
+class Cdocs(ContextualDocs, Physical, Changer):
 
     def __init__(self, docspath:str, config:Optional[Config]=None, context:Optional[MultiContextDocs]=None):
         super().__init__()
@@ -53,6 +55,8 @@ class Cdocs(ContextualDocs, Physical):
         self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
         self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
         self._accepts = None
+        self._last_change = None
+        self._last_change = self.get_last_change()
         #
         # these helpers can be swapped in and out as needed
         #
@@ -189,6 +193,42 @@ class Cdocs(ContextualDocs, Physical):
 # ===================
 # abc methods
 # ===================
+
+    def get_last_change(self) -> datetime:
+        if self._last_change is None:
+            lcf = self._get_last_change_file_path()
+            if os.path.exists(lcf):
+                last = None
+                with( open(lcf,"r") ) as lc:
+                    last = lc.read()
+                self._last_change = datetime.fromtimestamp(float(last))
+            else:
+                self.set_last_change()
+        #print(f"Cdocs.get_last_change: last: {self._last_change}")
+        return self._last_change
+
+    def _get_last_change_file_path(self):
+        return f"{self.get_doc_root()}/.last_change"
+
+    def set_last_change(self) -> None:
+        self._last_change = datetime.now()
+        self._write_last_change()
+
+    def _write_last_change(self):
+        # write the datetime
+        seconds = self._last_change.timestamp()
+        # write
+        lcf = self._get_last_change_file_path()
+        with( open(lcf, "w") ) as lc:
+            lc.write(str(seconds))
+
+    def reset_last_change(self, dt:datetime, root:Optional[str]=None) -> None:
+        if root is not None and self.root_name != root:
+            logging.info("Cdocs.reset_last_change: not for me: {root}")
+            return
+        self._last_change = dt
+        self._write_last_change()
+
 
     def get_tokens(self, path:DocPath, recurse:Optional[bool]=True) -> JsonDict:
         return self._get_dict(path, self._tokens_filename, recurse)
