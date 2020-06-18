@@ -80,7 +80,7 @@ Creating a Cdocs endpoint using <a href='https://flask.palletsprojects.com/en/1.
 ```
 app = Flask(__name__)
 api = Api(app)
-@app.route('/cdocs/&lt;path:cdocspath&gt;')
+@app.route('/cdocs/<path:cdocspath>')
 def cdocs(cdocspath:str):
      cdocs = Cdocs(PATH)
      return cdocs.get_doc(cdocspath)
@@ -104,7 +104,7 @@ def cdocs(cdocspath:str):
 ```
 An endpoint implementation might want to search certain trees based on the locale of the request, a version name, a product name, an author, etc.
 
-An SPA might use the endpoint to pull docs or labels for context sensitive help, UI labels, internationalization, etc. by converting its router's current route to docpath. A route like ```/teams/124/projects/15/todos``` might be converted to ```/teams/projects/todos``` using something like:
+An SPA might use the endpoint to pull docs or labels for context sensitive help, UI labels, internationalization, etc. by converting its router's current route to docpath. A route like ```/teams/124/projects/15/todos``` might be converted to ```/teams/projects/todos``` to get UI labels and tooltips using something like:
 ```
   getDocpathFromRoute(route) {
         let parts = route.split("/")
