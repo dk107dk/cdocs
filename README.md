@@ -96,7 +96,7 @@ The same endpoint using all of a set of docs directory trees configured in confi
 ```
 app = Flask(__name__)
 api = Api(app)
-@app.route('/cdocs/\<path:cdocspath\>')
+@app.route('/cdocs/<path:cdocspath>')
 def cdocs(cdocspath:str):
      metadata = ContextMetaData()
      context = Context(metadata)
