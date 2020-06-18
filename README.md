@@ -53,7 +53,7 @@ Use a *config.ini* to set the root directories, file extension, etc. The default
 Cdocs has several ways of getting content:
  - **get_doc**: docs at paths like ```/x/y/z``` with the physical file being at ```[root]/x/y/z.[ext]```. This is the "default" doc for the path.
 
-     The resulting text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree. The tokens dict will also have all the labels from the ```labels.json``` files found by crawling up the directory trees from the same point. Labels are added to the tokens dict with keys like ```label__[label_key]```. (Note that a good choice of word separator char for your muti-word tokens and labels keys is the underscore.)
+     The resulting text will be treated as a jinja template. The template will receive a dict created from all the *[tokens].json* files from the doc's directory up to the first level below root, and from the same starting point under the internal tree. The tokens dict will also have all the labels from the ```labels.json``` files found by crawling up the directory trees from the same point. Labels are added to the tokens dict with keys like ```label__[label_key]```.
 
      Templates can use ```plural```, ```cap``` and ```article``` to transform words. These functions come from the <a href='https://pypi.org/project/inflect/'>Inflect library</a>. Let's say there is a a token in the JSON found by aggregating tokens.json files that is named ```elephant``` and is equal to the string "elephant". Examples: ```{{plural(elephant)}}``` would result in *"elephants"*. ```{{cap(elephant)}}``` would result in *"Elephant"*. And ```{{article(elephant)}}``` would resut in *"an elephant"*.
 
@@ -96,13 +96,28 @@ The same endpoint using all of a set of docs directory trees configured in confi
 ```
 app = Flask(__name__)
 api = Api(app)
-@app.route('/cdocs/&lt;path:cdocspath&gt;')
+@app.route('/cdocs/\<path:cdocspath\>')
 def cdocs(cdocspath:str):
      metadata = ContextMetaData()
      context = Context(metadata)
      return context.get_doc(cdocspath)
 ```
 An endpoint implementation might want to search certain trees based on the locale of the request, a version name, a product name, an author, etc.
+
+An SPA might use the endpoint to pull docs or labels for context sensitive help, UI labels, internationalization, etc. by converting its router's current route to docpath. A route like ```/teams/124/projects/15/todos``` might be converted to ```/teams/projects/todos``` using something like:
+```
+  getDocpathFromRoute(route) {
+        let parts = route.split("/")
+        var path = ""
+        for (let i = 0; i <parts.length; i++) {
+            if (isNaN(Number(parts[i]))) {
+                path += "/" + parts[i]
+            }
+        }
+        return path
+  }
+```
+
 
 ### TODO:
 - Configure a transformer for default and #name docs. (And concat and compose?) E.g. to automatically transform xml > md, md > html, etc.
