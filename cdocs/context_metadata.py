@@ -22,6 +22,17 @@ class ContextMetadata(object):
                     acceptors = []
                 acceptors.append(k)
                 self._accepted_by[av] = acceptors
+        self._formats = {_[0]:[s for s in _[1].split(",")] for _ in self.config.get_items("formats")}
+        self._uses_format = dict()
+        for k in self._formats:
+            v = self._formats[k]
+            for av in v:
+                fs = self._uses_format.get(av)
+                if fs is None:
+                    fs = []
+                fs.append(k)
+                self._uses_format[av] = fs
+
 
     @property
     def accepted_by(self) -> Dict[str,List[str]]:
@@ -30,6 +41,16 @@ class ContextMetadata(object):
     @property
     def accepts(self) -> Dict[str,List[str]]:
         return self._accepts
+
+    @property
+    def uses_format(self) -> Dict[str,List[str]]:
+        return self._uses_format
+
+    @property
+    def formats(self) -> Dict[str,List[str]]:
+        return self._formats
+
+
 
     @property
     def roots(self) -> List[FilePath]:

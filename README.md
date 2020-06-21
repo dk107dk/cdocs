@@ -5,7 +5,7 @@
 
 <img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/docpath.png"/>
 
-The expected use of Cdocs is to create an endpoint to retrieve in-context help docs and/or UI labels from at runtime. While Cdocs is not an API, the <a href='https://docs.readthedocs.io/en/stable/guides/embedding-content.html'>ReadTheDocs Embed API</a> is a good comparison point. Cdocs could also be used to pull docs into an app build. Cdocs is not its intended to be a general help and manual system.
+The expected use of Cdocs is to create an endpoint to retrieve in-context help docs and/or UI labels from at runtime. While Cdocs is not an API, the <a href='https://docs.readthedocs.io/en/stable/guides/embedding-content.html'>ReadTheDocs Embed API</a> is a good comparison point. Cdocs could also be used to pull docs into an app build. Cdocs is not is not a <a href='https://en.wikipedia.org/wiki/Headless_content_management_system'>headless CMS</a> but it could be used to create one.
 
 Cdocs stores documentation as text files in a directory tree. Files are <a href='https://jinja.palletsprojects.com/en/2.11.x/'>Jinja templates</a> containing whatever doc format you prefer. Cdocs applies tokens to the templates if ```tokens.json``` containing dict are found. Files can be concatenated and/or composed.
 
