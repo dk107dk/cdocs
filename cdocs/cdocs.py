@@ -56,7 +56,7 @@ class Cdocs(ContextualDocs, Physical, Changer):
         self._plus:str  = cfg.get("filenames", "plus", "+")
         self._accepts = None
 
-        self._track_last_change = True
+        self._track_last_change = False
         self._last_change = None
         self._last_change = self.get_last_change()
         #
@@ -70,8 +70,8 @@ class Cdocs(ContextualDocs, Physical, Changer):
         self._finder = SimpleFinder(self) if cfg.finder is None else cfg.finder
 
         if cfg.pather is None:
-            metadata = ContextMetadata()
-            metadata.config = cfg
+            metadata = ContextMetadata(cfg)
+            #metadata.config = cfg
             self._pather = SimplePather(metadata, self)
             pass
         else:
@@ -79,15 +79,23 @@ class Cdocs(ContextualDocs, Physical, Changer):
         logging.info( str(self) )
 
     def __str__(self):
-        return f"Cdocs: type(self): "+\
-               f"path: {self._docs_path}, "+\
-               f"accepts: {self._accepts}, "+\
-               f"exts: {self._exts}, "+\
-               f"tokens: {self._tokens_filename}, "+\
-               f"labels: {self._labels_filename}, "+\
-               f"hash: {self._hashmark}, "+\
-               f"plus: {self._plus}"
-
+        return  f"Cdocs: type(self): "+\
+                f"path: {self._docs_path}, "+\
+                f"accepts: {self.accepts}, "+\
+                f"exts: {self._exts}, "+\
+                f"tokens: {self._tokens_filename}, "+\
+                f"labels: {self._labels_filename}, "+\
+                f"hash: {self._hashmark}, "+\
+                f"plus: {self._plus}, "+\
+                f"config: {self._config}, "+\
+                f"context: {self._context}"+\
+                f"concatter: {self._concatter}, "+\
+                f"lister: {self._lister}, "+\
+                f"filer: {self._filer}, "+\
+                f"transformer: {self._transformer}, "+\
+                f"reader: {self._reader}, "+\
+                f"finder: {self._finder}, "+\
+                f"pather: {self._pather}"
 
     def _set_ext(self) -> None:
         ext = self.config.get("defaults", "ext", "xml")

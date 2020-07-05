@@ -20,6 +20,7 @@ class ChangerTests(unittest.TestCase):
         self._print(f"ChangerTests.test_last_change")
         if self.off(): return
         cdocs = Cdocs(PATH)
+        cdocs.track_last_change = True
         dt = cdocs.get_last_change()
         self._print(f"Changer.test_last_change: dt: {dt}")
         lcf = cdocs._get_last_change_file_path()
@@ -34,7 +35,7 @@ class ChangerTests(unittest.TestCase):
         self.assertNotEqual(dt,dt2,msg=f"last change: {dt} must not equal {dt2}")
         time.sleep(1)
         cdocs = Cdocs(PATH)
-
+        cdocs.track_last_change = True
         dt3 = cdocs.get_last_change()
         self.assertEqual(dt3,dt2,msg=f"last change: {dt3} must equal {dt2}")
         cdocs.set_last_change()
