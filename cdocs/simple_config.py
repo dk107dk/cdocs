@@ -23,18 +23,25 @@ class SimpleConfig(Config):
     def get_config_path(self):
         return self._path
 
-    def get_with_default(self, group, name, default:Optional[str]=None) -> str:
-        val = self.get(group, name)
-        if val is None:
-            val = default
-        return val
+    # deprecated: just use get
+#    def get_with_default(self, group, name, default:Optional[str]=None) -> str:
+#        val = self.get(group, name)
+#       if val is None:
+#            val = default
+#        return val
 
-    def get(self, group:str, name:str) -> str:
+    def get(self, group:str, name:str, default:Optional[str]=None) -> str:
+        #return self.get_with_default(group,name,default)
+        logging.info(f"SimpleConfig.get: {group}, {name}, {default}")
         try:
-            return self._parser.get(group, name)
+            val = self._parser.get(group, name)
+            logging.info(f"SimpleConfig.get: val: {val}")
+            if val is None:
+                return default
+            return val
         except Exception as e:
-            logging.info(f"Cdocs Config.get: unable to get [{group}][{name}]: {e}. returning None.")
-            return None
+            logging.info(f"Cdocs Config.get: unable to get [{group}][{name}]: {e}. returning default: {default}.")
+            return default
 
     def get_items(self, group:str, exceptnot:List[str]=None) -> List[Tuple[str, str]]:
         items = None

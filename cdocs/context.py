@@ -135,7 +135,7 @@ class Context(ContextualDocs, MultiContextDocs):
         plus = path.find( plusmark )
         if plus > -1 and splitplus:
             if self._nosplitplus is None:
-                nsp = self._metadata.config.get_with_default("defaults","nosplitplus", "")
+                nsp = self._metadata.config.get("defaults","nosplitplus", "")
                 self._nosplitplus = nsp.split(',')
             if len(self._nosplitplus) > 0:
                 rootnames = [name for name in rootnames if not name in self._nosplitplus]

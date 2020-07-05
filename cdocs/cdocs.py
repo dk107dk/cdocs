@@ -50,11 +50,13 @@ class Cdocs(ContextualDocs, Physical, Changer):
         if self._rootname is None:
             raise ConfigException(f"Cdocs.__init__: no rootname for {docspath}")
         self._set_ext()
-        self._tokens_filename:str  = cfg.get_with_default("filenames", "tokens", "tokens.json")
-        self._labels_filename:str  = cfg.get_with_default("filenames", "labels", "labels.json")
-        self._hashmark:str  = cfg.get_with_default("filenames", "hashmark", "#")
-        self._plus:str  = cfg.get_with_default("filenames", "plus", "+")
+        self._tokens_filename:str  = cfg.get("filenames", "tokens", "tokens.json")
+        self._labels_filename:str  = cfg.get("filenames", "labels", "labels.json")
+        self._hashmark:str  = cfg.get("filenames", "hashmark", "#")
+        self._plus:str  = cfg.get("filenames", "plus", "+")
         self._accepts = None
+
+        self._track_last_change = True
         self._last_change = None
         self._last_change = self.get_last_change()
         #
@@ -88,8 +90,10 @@ class Cdocs(ContextualDocs, Physical, Changer):
 
 
     def _set_ext(self) -> None:
-        ext = self.config.get_with_default("defaults", "ext", "xml")
-        ext = self.config.get_with_default("formats", self.rootname, ext)
+        ext = self.config.get("defaults", "ext", "xml")
+        logging.info(f"cdocs._set_ext 1: {ext}")
+        ext = self.config.get("formats", self.rootname, ext)
+        logging.info(f"cdocs._set_ext 2: {ext}")
         if ext.find(",") > -1:
             self._exts = ext.split(",")
         else:
@@ -195,40 +199,60 @@ class Cdocs(ContextualDocs, Physical, Changer):
 # ===================
 
     def get_last_change(self) -> datetime:
-        if self._last_change is None:
-            lcf = self._get_last_change_file_path()
-            if os.path.exists(lcf):
-                last = None
-                with( open(lcf,"r") ) as lc:
-                    last = lc.read()
-                self._last_change = datetime.fromtimestamp(float(last))
-            else:
-                self.set_last_change()
-        #print(f"Cdocs.get_last_change: last: {self._last_change}")
-        return self._last_change
+        if self.track_last_change:
+            if self._last_change is None:
+                lcf = self._get_last_change_file_path()
+                if os.path.exists(lcf):
+                    last = None
+                    with( open(lcf,"r") ) as lc:
+                        last = lc.read()
+                    self._last_change = datetime.fromtimestamp(float(last))
+                else:
+                    self.set_last_change()
+            return self._last_change
 
     def _get_last_change_file_path(self):
-        return f"{self.get_doc_root()}/.last_change"
+        if self.track_last_change:
+            path = f"{self.get_doc_root()}/.last_change"
+            if not os.path.exists(path) :
+                try:
+                    os.makedirs(self.get_doc_root())
+                except Exception as e:
+                    logging.error("Cdocs._get_last_change_file_path: create root failed: {self.get_doc_root()}: {e}")
+            return path
 
     def set_last_change(self) -> None:
-        self._last_change = datetime.now()
-        self._write_last_change()
+        if self.track_last_change:
+            self._last_change = datetime.now()
+            self._write_last_change()
 
     def _write_last_change(self):
-        # write the datetime
-        seconds = self._last_change.timestamp()
-        # write
-        lcf = self._get_last_change_file_path()
-        with( open(lcf, "w") ) as lc:
-            lc.write(str(seconds))
+        if self.track_last_change:
+            # write the datetime
+            seconds = self._last_change.timestamp()
+            # write
+            lcf = self._get_last_change_file_path()
+            with( open(lcf, "w") ) as lc:
+                try:
+                    lc.write(str(seconds))
+                except Exception as e:
+                    logging.warning(f"cdocs._write_last_change: cannot write last change. refusing to crash.  {e}")
+
+    @property
+    def track_last_change(self) -> bool:
+        return self._track_last_change
+
+    @track_last_change.setter
+    def track_last_change(self, do:bool) -> None:
+        self._track_last_change = do
 
     def reset_last_change(self, dt:datetime, root:Optional[str]=None) -> None:
-        if root is not None and self.root_name != root:
-            logging.info("Cdocs.reset_last_change: not for me: {root}")
-            return
-        self._last_change = dt
-        self._write_last_change()
-
+        if self.track_last_change:
+            if root is not None and self.root_name != root:
+                logging.info("Cdocs.reset_last_change: not for me: {root}")
+                return
+            self._last_change = dt
+            self._write_last_change()
 
     def get_tokens(self, path:DocPath, recurse:Optional[bool]=True) -> JsonDict:
         return self._get_dict(path, self._tokens_filename, recurse)
@@ -293,7 +317,7 @@ class Cdocs(ContextualDocs, Physical, Changer):
 
     def get_404(self) -> Optional[Doc]:
         config = self.config
-        _404 = config.get_with_default("notfound", self._rootname, None)
+        _404 = config.get("notfound", self._rootname, None)
         logging.info(f"Cdocs.get_404: notfound in {self._rootname} is {_404}")
         if _404 is None:
             return None

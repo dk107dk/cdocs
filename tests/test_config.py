@@ -25,7 +25,7 @@ class ConfigTests(unittest.TestCase):
         self._print(f"ConfigTests.test_get_with_default")
         if self.off(): return
         cfg = SimpleConfig()
-        oh = cfg.get_with_default("fish", "bats", "yeah!")
+        oh = cfg.get("fish", "bats", "yeah!")
         self._print(f"test_get_with_default: {oh}")
         self.assertEqual( oh, "yeah!", msg="must equal the default value" )
 

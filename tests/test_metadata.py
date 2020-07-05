@@ -14,8 +14,8 @@ class MetadataTests(unittest.TestCase):
 
     def test_formats(self):
         self._print(f"MetadataTests.test_formats")
-        metadata = ContextMetadata()
         if self.off(): return
+        metadata = ContextMetadata()
         formats = metadata.formats["public"]
         self._print(f"MetadataTests.test_formats: formats are: {formats}")
         self.assertEqual(2, len(formats), msg=f'formats for public must be 2, not {len(formats)}')

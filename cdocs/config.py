@@ -12,11 +12,11 @@ class Config(Physical, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_with_default(self, group:str, name:str, default:Optional[str]=None) -> str:
+    def get_config_path(self):
         pass
 
     @abc.abstractmethod
-    def get(self, group:str, name:str) -> str:
+    def get(self, group:str, name:str, default:Optional[str]=None) -> str:
         pass
 
     @abc.abstractmethod
