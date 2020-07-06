@@ -70,13 +70,14 @@ class Cdocs(ContextualDocs, Physical, Changer):
         self._finder = SimpleFinder(self) if cfg.finder is None else cfg.finder
 
         if cfg.pather is None:
+            logging.info("Cdocs.__init__: config's pather is None: {cfg}")
             metadata = ContextMetadata(cfg)
             #metadata.config = cfg
             self._pather = SimplePather(metadata, self)
             pass
         else:
             self._pather = cfg.pather
-        logging.info( str(self) )
+        logging.info(f"Cdocs.__init__: completed init. Cdocs is:\n{str(self)}")
 
     def __str__(self):
         return  f"Cdocs: type(self): "+\
@@ -301,17 +302,18 @@ class Cdocs(ContextualDocs, Physical, Changer):
         return self._get_doc(path, notfound)
 
     def _get_doc(self, path:DocPath, notfound) -> Optional[Doc]:
+        logging.info(f"Cdocs._get_doc: looking for path: {path} in root: {self.rootname}. notfound: {notfound}")
         if path is None :
             raise DocNotFoundException("path can not be None")
         if path.find('.') > -1:
             if self.filer.get_filetype(path) == 'cdocs':
                 raise BadDocPath("dots are not allowed in cdoc paths")
         if notfound is None:
-            logging.warning("Cdocs._get_doc: notfound is None. you should fix this.")
+            logging.info("Cdocs._get_doc: notfound is None. you should fix this unless you want None returns.")
             notfound = False
         logging.info(f"Cdocs._get_doc: path: {path}")
         pluspaths = self._get_plus_paths(path)
-        logging.info(f"Cdocs._get_doc: pluspaths {pluspaths}")
+        logging.info(f"Cdocs._get_doc: pluspaths to concationate: {pluspaths}")
         root = self.get_doc_root()
         logging.info(f"Cdocs._get_doc: root {root}")
         doc = self._get_doc_for_root(path, pluspaths, root)
@@ -336,12 +338,17 @@ class Cdocs(ContextualDocs, Physical, Changer):
         return doc
 
     def _get_doc_for_root(self, path:DocPath, pluspaths:List[DocPath], root:FilePath) -> Doc:
+        logging.info(f"Cdocs._get_doc_for_root: path: {path}. plus paths: {pluspaths}. root: {root}")
         if len(pluspaths) > 0:
+            logging.info(f"Cdocs._get_doc_for_root: stripping down base path from plus path(s)")
             plus = path.find(self._plus)
             path = path[0:plus]
+            logging.info(f"Cdocs._get_doc_for_root: base path is now {path}")
+        logging.info(f"Cdocs._get_doc_for_root: checking pather: {self._pather} for path: {path}")
         filepath = self._pather.get_full_file_path_for_root(path, root)
-        logging.info(f"Cdocs._get_doc_for_root: fp {filepath}")
+        logging.info(f"Cdocs._get_doc_for_root: filepath from pather: {filepath}")
         content = self._read_doc(filepath)
+        logging.info(f"Cdocs._get_doc_for_root: content from {filepath} is {len(content) if content is not None else 0} chars. transforming with: {self.transformer}.")
         content = self.transformer.transform(content, path, None, True)
         if len(pluspaths) > 0:
             content = self.concatter.join(content, self.concatter.concat(pluspaths))

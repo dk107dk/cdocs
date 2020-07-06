@@ -1,6 +1,7 @@
 from cdocs.cdocs import Cdocs, DocNotFoundException, BadDocPath
 import unittest
 import os
+import logging
 
 PATH:str = "/Users/davidkershaw/dev/cdocs/docs/example"
 PATH2:str = "/Users/davidkershaw/dev/cdocs/docs/internal"
@@ -8,6 +9,12 @@ JSON:str = "/Users/davidkershaw/dev/cdocs/docs/json"
 APIUI:str = "/Users/davidkershaw/dev/cdocs/docs/apiui"
 
 class CdocsTests(unittest.TestCase):
+
+    logger = logging.getLogger('')
+    def _debug(self):
+        self.logger.setLevel(level=logging.DEBUG)
+        self.logger.debug("SET THE LEVEL TO DEBUG")
+
 
     noise = False
     def _print(self, text:str) -> None:
@@ -53,6 +60,7 @@ class CdocsTests(unittest.TestCase):
     def test_get_doc(self) :
         self._print(f"CdocsTests.test_get_doc")
         if self.off(): return
+        #self._debug()
         docpath = "/app/home/teams/todos/assignee"
         cdocs = Cdocs(PATH)
         txt = cdocs.get_doc(docpath)
