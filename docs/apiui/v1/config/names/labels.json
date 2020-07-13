@@ -1,0 +1,10 @@
+{
+   "docpath": "DocPath",
+   "docroot": "DocRoot",
+   "filepath": "FilePath",
+
+   "docpath.description": "A path that is used by Cdocs. It starts with an optional '/' and lives on the file system below a DocRoot",
+   "docroot.description": "A named location on the filesystem that Cdocs uses to store documents.",
+   "filepath.description": "A normal file system path.",
+   "cdocs": "The word 'cdocs' is used to identify a root that uses DocPath."
+}

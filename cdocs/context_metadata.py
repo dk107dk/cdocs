@@ -50,8 +50,6 @@ class ContextMetadata(object):
     def formats(self) -> Dict[str,List[str]]:
         return self._formats
 
-
-
     @property
     def roots(self) -> List[FilePath]:
         return self._roots

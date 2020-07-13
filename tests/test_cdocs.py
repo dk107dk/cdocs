@@ -16,7 +16,7 @@ class CdocsTests(unittest.TestCase):
         self.logger.debug("SET THE LEVEL TO DEBUG")
 
 
-    noise = False
+    noise = True
     def _print(self, text:str) -> None:
         if self.noise:
             print(text)
@@ -274,10 +274,12 @@ class CdocsTests(unittest.TestCase):
         self._print(f"CdocsTests.test_list_docs")
         docpath = "/app/home/teams"
         cdocs = Cdocs(PATH)
+        self._print(f"CdocsTests.test_list_docs. cdocs: {cdocs}")
         docs = cdocs.list_docs(docpath)
+        self._print(f"CdocsTests.test_list_docs: docs: {docs}")
         self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
         self.assertEqual(len(docs), 3, msg=f"len(docs) at {docpath} must be 3")
-        self.assertIn("todo.xml", docs, msg=f"docs {docs} must include todo.xml")
+        self.assertIn("a.json", docs, msg=f"docs {docs} must include a.json")
 
 
 
