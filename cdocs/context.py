@@ -76,6 +76,7 @@ class Context(ContextualDocs, MultiContextDocs):
             logging.info(f"Context.filter_root_names_for_path: filtered {roots} to {filtered}")
         return filtered
 
+    # TODO: this method doesn't return JsonDict. fix hint.
     def list_docs_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
         docs = []
         rootnames = self.filter_root_names_for_path(rootnames, path)

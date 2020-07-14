@@ -281,6 +281,26 @@ class CdocsTests(unittest.TestCase):
         self.assertEqual(len(docs), 3, msg=f"len(docs) at {docpath} must be 3")
         self.assertIn("a.json", docs, msg=f"docs {docs} must include a.json")
 
+        self._print(f"CdocsTests.test_list_docs: listing root")
+        docs = cdocs.list_docs("/")
+        self._print(f"CdocsTests.test_list_docs: docs: {docs}")
+        self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
+        self.assertEqual(len(docs), 2, msg=f"len(docs) at {docpath} must be 2")
+        self.assertIn("404a.xml", docs, msg=f"docs {docs} must include 404a.xml")
+
+        self._print(f"CdocsTests.test_list_docs: listing empty string -- which is also the root")
+        docs = cdocs.list_docs("")
+        self._print(f"CdocsTests.test_list_docs: docs: {docs}")
+        self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
+        self.assertEqual(len(docs), 2, msg=f"len(docs) at {docpath} must be 2")
+        self.assertIn("404a.xml", docs, msg=f"docs {docs} must include 404a.xml")
+
+        self._print(f"CdocsTests.test_list_docs: listing bogus docpath")
+        docs = cdocs.list_docs("fish/can or cannot/fly")
+        self._print(f"CdocsTests.test_list_docs: docs: {docs}")
+        self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
+        self.assertEqual(len(docs), 0, msg=f"len(docs) at {docpath} must be 0")
+
 
 
 
