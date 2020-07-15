@@ -301,7 +301,22 @@ class CdocsTests(unittest.TestCase):
         self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
         self.assertEqual(len(docs), 0, msg=f"len(docs) at {docpath} must be 0")
 
-
+    def test_doc_at_root(self):
+        self._print(f"CdocsTests.test_doc_at_root")
+        #
+        # we have:
+        #   /404x.html
+        #   /404
+        #   /404a.xml
+        #
+        docpath = "/#404x.html"
+        cdocs = Cdocs(PATH)
+        self._print(f"CdocsTests.test_doc_at_root. cdocs: {cdocs}")
+        doc = cdocs.get_doc(docpath)
+        self._print(f"CdocsTests.test_doc_at_root: doc: {doc}")
+        self.assertIsNotNone(doc, msg=f"docpath: {docpath} must not be None")
+        found = doc.find("REALLY") >= 0
+        self.assertEqual(found, True, msg=f"doc at {docpath} must include 'REALLY'")
 
 
 

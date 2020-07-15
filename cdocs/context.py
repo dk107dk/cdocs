@@ -67,22 +67,35 @@ class Context(ContextualDocs, MultiContextDocs):
         return l
 
     def filter_root_names_for_path(self, roots:List[str], path:DocPath) -> List[str]:
-        filetype = self.get_filetype(path)
+        logging.info(f"Context.filter_root_names_for_path: starting roots: {roots}, path: {path}")
+        filetype = None
+        hashmark = self.metadata.config.get("filenames", "hashmark", "#")
+        logging.info(f"Context.filter_root_names_for_path: hashmark: {hashmark}")
+        if path.find(hashmark) > -1:
+            filetype = "cdocs"
+        else:
+            filetype = self.get_filetype(path)
+        logging.info(f"Context.filter_root_names_for_path: filetype: {filetype}")
         aroots = self.metadata.accepted_by.get(filetype)
         if aroots is None:
             aroots = []
+        logging.info(f"Context.filter_root_names_for_path: found {aroots} for filetype. filtering roots using that list.")
         filtered = [item for item in roots if item in aroots]
         if roots != filtered:
-            logging.info(f"Context.filter_root_names_for_path: filtered {roots} to {filtered}")
+            logging.info(f"Context.filter_root_names_for_path: filtered (by accepted) {roots} to {filtered}")
         return filtered
 
     # TODO: this method doesn't return JsonDict. fix hint.
     def list_docs_from_roots(self, rootnames:List[str], path:DocPath) ->  Optional[JsonDict]:
+        logging.info(f"Context.list_docs_from_roots: rootnames: {rootnames}, path: {path}")
         docs = []
         rootnames = self.filter_root_names_for_path(rootnames, path)
+        logging.info(f"Context.list_docs_from_roots: filtered rootnames for path: {rootnames}")
         for _ in rootnames:
             cdocs = self.keyed_cdocs[_]
+            logging.info(f"Context.list_docs_from_roots: cdocs: {cdocs.rootname}")
             somedocs = cdocs.list_docs(path)
+            logging.info(f"Context.list_docs_from_roots: found {len(somedocs) if somedocs is not None else '0'}")
             for doc in somedocs:
                 docs.append(doc)
         return docs
@@ -132,6 +145,7 @@ class Context(ContextualDocs, MultiContextDocs):
                        i.e. for /x/y/z+a+b /x/y/z, /x/y/z/a, /x/y/z/b
                        can all be on different roots.
         """
+        logging.info(f"Context.get_doc_from_roots: first match wins. rootnames: {rootnames}, path: {path}, notfound: {notfound}, splitplus: {splitplus}")
         plusmark = self._metadata.config.get("filenames", "plus")
         plus = path.find( plusmark )
         if plus > -1 and splitplus:
@@ -177,10 +191,10 @@ class Context(ContextualDocs, MultiContextDocs):
             return "".join(result)
         else:
             rootnames = self.filter_root_names_for_path(rootnames, path)
-            logging.info(f"Context.get_doc_from_roots: rootnames: {rootnames}")
+            logging.info(f"Context.get_doc_from_roots: rootnames: {rootnames} - not spliting pluses, first root locks in the pluses")
             for _ in rootnames:
                 cdocs = self.keyed_cdocs[_]
-                logging.info(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs}")
+                logging.info(f"Context.get_doc_from_roots: cdocs: {_} -> {cdocs.get_doc_root()}")
                 doc = cdocs.get_doc(path, False)
                 logging.info(f"found doc: {type(doc)}")
                 if doc is not None:

@@ -62,11 +62,18 @@ class SimpleLister(Lister):
         the_path = os.path.join(root_path, apath)
         logging.info(f"SimpleLister.list_docs: the_path: {the_path}")
         if os.path.exists(the_path):
-            files = os.listdir(the_path)
-            logging.info(f"SimpleLister.list_docs: files: {files}")
-            files = [f for f in files if f[0:1] != '.' and os.path.isfile(os.path.join(the_path, f))]
-            logging.info(f"SimpleLister.list_docs: returning: {files}")
-            return files
+            logging.info(f"SimpleLister.list_docs: path exists")
+            if not os.path.isdir(the_path):
+                logging.info(f"SimpleLister.list_docs: the_path: {the_path} is a directory")
+                name = the_path[the_path.rindex("/")+1:]
+                logging.info(f"SimpleLister.list_docs: returning name: {name}")
+                return [name]
+            else:
+                files = os.listdir(the_path)
+                logging.info(f"SimpleLister.list_docs: files: {files}")
+                files = [f for f in files if f[0:1] != '.' and os.path.isfile(os.path.join(the_path, f))]
+                logging.info(f"SimpleLister.list_docs: returning: {files}")
+                return files
         else:
             logging.info(f"SimpleLister.list_docs: directory at {the_path} doesn't exist. no files found. returning [].")
             return []

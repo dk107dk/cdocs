@@ -14,7 +14,8 @@ class ContextMetadata(object):
         self._root_names = [ _[0] for _ in self.config.get_items("docs")]
         self._accepts = {_[0]:[s for s in _[1].split(",")] for _ in self.config.get_items("accepts")}
         self._accepted_by = dict()
-        for k in self._accepts:
+        self._load_accepted_by()
+        """for k in self._accepts:
             v = self._accepts[k]
             for av in v:
                 acceptors = self._accepted_by.get(av)
@@ -22,6 +23,7 @@ class ContextMetadata(object):
                     acceptors = []
                 acceptors.append(k)
                 self._accepted_by[av] = acceptors
+        """
         self._formats = {_[0]:[s for s in _[1].split(",")] for _ in self.config.get_items("formats")}
         self._uses_format = dict()
         for k in self._formats:
@@ -32,6 +34,17 @@ class ContextMetadata(object):
                     fs = []
                 fs.append(k)
                 self._uses_format[av] = fs
+
+    def _load_accepted_by(self):
+        logging.info(f"ContextMetadata._load_accepted_by: starting with: {self._accepts}")
+        for k,v in self._accepts.items():
+            #v = self._accepts[k]
+            for av in v:
+                acceptors = self._accepted_by.get(av)
+                if acceptors is None:
+                    acceptors = []
+                acceptors.append(k)
+                self._accepted_by[av] = acceptors
 
 
     @property

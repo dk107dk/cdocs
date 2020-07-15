@@ -34,7 +34,7 @@ class SimplePather(Pather):
         if path == '':
             logging.info(f"SimplePather.get_full_file_path_for_root: path points to root. returning root.")
             return root
-        logging.info("SimplePather.get_full_file_path_for_root: getting filename for {path}")
+        logging.info(f"SimplePather.get_full_file_path_for_root: getting filename for {path}")
         filename = self.get_filename(path)
         logging.info(f"SimplePather.get_full_file_path_for_root: path: {path}, filename: {filename}, root: {root}")
         if filename is None:
@@ -62,8 +62,8 @@ class SimplePather(Pather):
             logging.info(f"SimplePather.get_full_file_path_for_root: filename is None and there is a '.'")
             pass
         else:
-            logging.info(f"SimplePather.get_full_file_path_for_root: filename: {filename}")
-            apath = apath + os.path.sep + filename
+            logging.info(f"SimplePather.get_full_file_path_for_root: apath: {apath}, last char: {apath[-1:]}, filename: {filename}")
+            apath = apath + ('' if apath[-1:] == '/' else os.path.sep )+ filename
             apath = self._find_path(apath)
         if apath is None:
             logging.info(f"SimplePather.get_full_file_path_for_root: apath is None! from: {self._rootname}->{apath}")
@@ -77,7 +77,13 @@ class SimplePather(Pather):
         logging.info(f"SimplePather._find_path: starting path: {path}")
         logging.info(f"SimplePather._find_path: looking for path using exts in {self._exts}")
         for ext in self._exts:
-            apath = path + "." + ext
+            apath = None
+            anext = path[-1*len(ext):]
+            logging.info(f"SimplePather._find_path: checking if path's anext: {anext} matches ext: {ext}")
+            if anext == ext:
+                apath = path
+            else:
+                apath = path + "." + ext
             logging.info(f"SimplePather._find_path: checking for a simple file: apath: {apath}")
             if os.path.exists(apath):
                 logging.info(f"SimplePather._find_path: apath exists. returning: {apath}")
