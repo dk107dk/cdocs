@@ -285,14 +285,14 @@ class CdocsTests(unittest.TestCase):
         docs = cdocs.list_docs("/")
         self._print(f"CdocsTests.test_list_docs: docs: {docs}")
         self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
-        self.assertEqual(len(docs), 2, msg=f"len(docs) at {docpath} must be 2")
+        self.assertEqual(len(docs), 3, msg=f"len(docs) at {docpath} must be 3")
         self.assertIn("404a.xml", docs, msg=f"docs {docs} must include 404a.xml")
 
         self._print(f"CdocsTests.test_list_docs: listing empty string -- which is also the root")
         docs = cdocs.list_docs("")
         self._print(f"CdocsTests.test_list_docs: docs: {docs}")
         self.assertIsNotNone(docs, msg=f"docpath: {docpath} must not be None")
-        self.assertEqual(len(docs), 2, msg=f"len(docs) at {docpath} must be 2")
+        self.assertEqual(len(docs), 3, msg=f"len(docs) at {docpath} must be 3")
         self.assertIn("404a.xml", docs, msg=f"docs {docs} must include 404a.xml")
 
         self._print(f"CdocsTests.test_list_docs: listing bogus docpath")
@@ -311,12 +311,15 @@ class CdocsTests(unittest.TestCase):
         #
         docpath = "/#404x.html"
         cdocs = Cdocs(PATH)
+        #self._debug()
         self._print(f"CdocsTests.test_doc_at_root. cdocs: {cdocs}")
         doc = cdocs.get_doc(docpath)
         self._print(f"CdocsTests.test_doc_at_root: doc: {doc}")
         self.assertIsNotNone(doc, msg=f"docpath: {docpath} must not be None")
         found = doc.find("REALLY") >= 0
-        self.assertEqual(found, True, msg=f"doc at {docpath} must include 'REALLY'")
+        # should not be found because this root doesn't have html as a format
+        # simple pather look using its exts resulting in 404x.html.xml and 404x.html.json
+        self.assertEqual(found, False, msg=f"doc at {docpath} must not include 'REALLY'")
 
 
 

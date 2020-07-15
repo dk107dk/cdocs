@@ -5,8 +5,9 @@ from cdocs.context_metadata import ContextMetadata
 import unittest
 import os
 import logging
+from typing import Optional
 
-class REPL(object):
+class Repl(object):
 
     def __init__(self):
         self._config = None
@@ -16,11 +17,13 @@ class REPL(object):
         self._debug = False
         self._logger = logging.getLogger('')
 
-
-    def setup(self, configpath:str=None):
+    def ask_debug(self):
         d = input("want to debug during load? (y/n) ")
         if (d=='y'):
             self.debug()
+
+    def setup(self, configpath:Optional[str]=None, askdebug:Optional[bool]=True):
+        self.ask_debug()
         metadata = None
         self._config = SimpleConfig(configpath)
         self._metadata = ContextMetadata(self._config)
@@ -29,27 +32,22 @@ class REPL(object):
     def loop(self):
         print("\n")
         while self._continue:
-            cmd = input("cmd: ")
-            if cmd == "quit":
-                self.quit()
-            elif cmd == "read":
-                self.read()
-            elif cmd == "root info":
-                self.root_info()
-            elif cmd == "list":
-                self.list()
-            elif cmd == "roots":
-                self.roots()
-            elif cmd == "debug":
-                self.debug()
-            else:
-                print("\nHelp:")
-                print("   read")
-                print("   list")
-                print("   roots")
-                print("   root info")
-                print("   debug")
-                print("   quit")
+            self._one_loop()
+
+    def _one_loop(self) -> bool:
+        cmd = input("cmd: ")
+        if cmd == "quit":
+            return self.quit()
+        elif cmd == "read":
+            return self.read()
+        elif cmd == "list":
+            return self.list()
+        elif cmd == "roots":
+            return self.roots()
+        elif cmd == "debug":
+            return self.debug()
+        elif cmd == "help":
+            return self.help()
 
     def debug(self):
         if self._debug:
@@ -60,6 +58,15 @@ class REPL(object):
             self._logger.setLevel(level=logging.DEBUG)
             self._logger.debug("Set level to DEBUG")
             self._debug = True
+
+    def help(self):
+        print("\nHelp:")
+        print("   read")
+        print("   list")
+        print("   roots")
+        print("   debug")
+        print("   quit")
+        return True
 
     def read(self):
         roots = self._get_roots()
@@ -74,6 +81,7 @@ class REPL(object):
             print(f"{doc}")
         except BadDocPath as e:
             print(f"Error: {e}")
+        return True
 
     def _get_roots(self):
         roots = input("which roots (Csv or return for all): ")
@@ -93,23 +101,22 @@ class REPL(object):
         print("\ndocs: ")
         for doc in docs:
             print(f"   {doc}")
+        return True
 
     def roots(self):
         roots = self._config.get_items("docs")
         print("\nroots:")
         for root in roots:
             print(f"   {root}")
-
-    def root_info(self):
-        print("\nroot info not available in Cdocs")
-        pass
+        return True
 
     def quit(self):
         self._continue = False
+        return True
 
 
 if __name__ == "__main__":
-    repl = REPL()
+    repl = Repl()
     repl.setup()
     repl.loop()
 
