@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cdocs",
-    version="0.0.31",
+    version="0.0.32",
     author="David Kershaw",
     author_email="dk107dk@hotmail.com",
     description="Cdocs is a super simple contextual help library",
