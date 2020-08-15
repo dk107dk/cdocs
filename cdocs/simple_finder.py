@@ -33,9 +33,15 @@ class SimpleFinder(Finder):
         tdict = self._read_json(tfile)
         tokens = {**tdict, **tokens}
         if recurse:
+            logging.info(f"simple_finder._find_tokens: recursing on pointer: {pointer}")
             end = int( pointer.rfind("/") )
+            logging.info(f"simple_finder._find_tokens: end: {end}")
             pointer = pointer[0:end]
-            return self._find_tokens(root, pointer, tokens, filename)
+            if pointer == root:
+                pointer = pointer + "/"
+                recurse = False
+            logging.info(f"simple_finder._find_tokens: now pointer: {pointer}")
+            return self._find_tokens(root, pointer, tokens, filename, recurse)
         else:
             return tokens
 

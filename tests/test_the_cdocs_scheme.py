@@ -24,6 +24,7 @@ class CdocsSchemeTests(unittest.TestCase):
 
     def test_finding_doc_at_root_using_cdoc(self):
         self._print(f"CdocsSchemeTests.test_finding_doc_at_root_using_cdoc")
+        self._print(f"CdocsSchemeTests.test_finding_doc_at_root_using_cdoc: THIS TEST IS NOT YET DETERMINISTIC.")
         #
         # we have:
         #   /404x.html

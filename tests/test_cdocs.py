@@ -151,6 +151,10 @@ class CdocsTests(unittest.TestCase):
         self.assertIn("my_app_name", labels, msg=f"labels at {docpath} must include key 'my_app_name'")
         self.assertEqual("my app's name is fruit", labels["my_app_name"], msg=f"label my app name must == my app's name is fruit")
         self.assertEqual("starstruck", labels["company"], msg=f"label company must == starstruck")
+        #
+        # get labels from the top
+        #
+        self.assertIn("filenames", labels, msg=f"labels at {docpath} must include key 'filenames' from /")
 
 
     def test_get_labels_no_recurse(self):

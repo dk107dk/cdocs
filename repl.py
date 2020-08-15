@@ -22,8 +22,15 @@ class Repl(object):
         if (d=='y'):
             self.debug()
 
+    def ask_config(self):
+        d = input("want to use your own config? (y/n) ")
+        if (d=='y'):
+            return input("what path? ")
+        return None
+
     def setup(self, configpath:Optional[str]=None, askdebug:Optional[bool]=True):
         self.ask_debug()
+        configpath = self.ask_config()
         metadata = None
         self._config = SimpleConfig(configpath)
         self._metadata = ContextMetadata(self._config)
@@ -44,9 +51,11 @@ class Repl(object):
             return self.list()
         elif cmd == "roots":
             return self.roots()
+        elif cmd == "labels":
+            return self.labels()
         elif cmd == "debug":
             return self.debug()
-        elif cmd == "help":
+        elif cmd == "help" or cmd == "?":
             return self.help()
 
     def debug(self):
@@ -64,6 +73,7 @@ class Repl(object):
         print("   read")
         print("   list")
         print("   roots")
+        print("   labels")
         print("   debug")
         print("   quit")
         return True
@@ -79,6 +89,21 @@ class Repl(object):
                 doc = self._context.get_doc(docpath)
             print("\ndoc: ")
             print(f"{doc}")
+        except BadDocPath as e:
+            print(f"Error: {e}")
+        return True
+
+    def labels(self):
+        roots = self._get_roots()
+        docpath = input("docpath: ")
+        labels = ""
+        try:
+            if len(roots) >= 1:
+                labels = self._context.get_labels_from_roots(roots, docpath)
+            else:
+                labels = self._context.get_labels(docpath)
+            print("\nlabels: ")
+            print(f"{labels}")
         except BadDocPath as e:
             print(f"Error: {e}")
         return True
