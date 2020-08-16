@@ -263,8 +263,12 @@ class Cdocs(ContextualDocs, Physical, Changer):
             self._last_change = dt
             self._write_last_change()
 
-    def get_tokens(self, path:DocPath, recurse:Optional[bool]=True) -> JsonDict:
-        return self._get_dict(path, self._tokens_filename, recurse)
+    def get_tokens(self, path:DocPath, recurse:Optional[bool]=True, addlabels:Optional[bool]=True) -> JsonDict:
+        tokens = self._get_dict(path, self._tokens_filename, recurse)
+        if addlabels:
+            tokens = self._add_labels_to_tokens(path, tokens, recurse)
+        return tokens
+
 
     def list_docs(self, path:DocPath) -> List[Doc]:
         return self.lister.list_docs(path)
@@ -355,17 +359,17 @@ class Cdocs(ContextualDocs, Physical, Changer):
         return Doc(content)
 
     def _transform_labels(self, path:DocPath, labels:JsonDict) -> JsonDict:
-        tokens:dict = self.get_tokens(path)
+        tokens:dict = self.get_tokens(path, addlabels=False)
         ls = { k:self.transformer.transform(v, path, tokens, False) for k,v in labels.items() }
         return JsonDict(ls)
 
-    def _add_labels_to_tokens(self, path:DocPath, tokens:JsonDict) -> JsonDict:
+    def _add_labels_to_tokens(self, path:DocPath, tokens:JsonDict, recurse:Optional[bool]=True) -> JsonDict:
         apath = path
         if path.find(self._hashmark) > -1:
             apath = apath[0:apath.find(self._hashmark)]
         if apath.find(self._plus) > -1:
             apath = apath[0:apath.find(self._plus)]
-        labels = self.get_labels(apath)
+        labels = self.get_labels(apath, recurse)
         ltokens = { "label__"+k:v for k,v in labels.items()}
         tokens  = {**ltokens, **tokens}
         return JsonDict(tokens)

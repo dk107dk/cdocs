@@ -53,6 +53,8 @@ class Repl(object):
             return self.roots()
         elif cmd == "labels":
             return self.labels()
+        elif cmd == "tokens":
+            return self.tokens()
         elif cmd == "debug":
             return self.debug()
         elif cmd == "help" or cmd == "?":
@@ -74,6 +76,7 @@ class Repl(object):
         print("   list")
         print("   roots")
         print("   labels")
+        print("   tokens")
         print("   debug")
         print("   quit")
         return True
@@ -104,6 +107,21 @@ class Repl(object):
                 labels = self._context.get_labels(docpath)
             print("\nlabels: ")
             print(f"{labels}")
+        except BadDocPath as e:
+            print(f"Error: {e}")
+        return True
+
+    def tokens(self):
+        roots = self._get_roots()
+        docpath = input("docpath: ")
+        labels = ""
+        try:
+            if len(roots) >= 1:
+                labels = self._context.get_tokens_from_roots(roots, docpath)
+            else:
+                tokens = self._context.get_tokens(docpath)
+            print("\ntokens: ")
+            print(f"{tokens}")
         except BadDocPath as e:
             print(f"Error: {e}")
         return True

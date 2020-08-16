@@ -47,7 +47,7 @@ class ContextualDocs(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def get_labels(self, path:DocPath, recurse:Optional[bool]=True) -> Optional[JsonDict]:
+    def get_labels(self, path:DocPath, recurse:Optional[bool]=True, addlabels:Optional[bool]=True) -> Optional[JsonDict]:
         pass
 
     @abc.abstractmethod
