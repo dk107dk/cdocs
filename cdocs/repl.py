@@ -15,7 +15,28 @@ class Repl(object):
         self._context = None
         self._continue = True
         self._debug = False
+        self._commands = {}
         self._logger = logging.getLogger('')
+        self._add_commands()
+
+    def _add_commands(self):
+        self.commands["quit"] = self.quit
+        self.commands["read"] = self.read
+        self.commands["list"] = self.list
+        self.commands["roots"] = self.roots
+        self.commands["labels"] = self.labels
+        self.commands["tokens"] = self.tokens
+        self.commands["debug"] = self.debug
+        self.commands["help"] = self.help
+        self.commands["?"] = self.help
+
+    @property
+    def commands(self):
+        return self._commands
+
+    @commands.setter
+    def commands(self, adict):
+        self._commands = adict
 
     def ask_debug(self):
         d = input("want to debug during load? (y/n) ")
@@ -43,22 +64,15 @@ class Repl(object):
 
     def _one_loop(self) -> bool:
         cmd = input("cmd: ")
-        if cmd == "quit":
-            return self.quit()
-        elif cmd == "read":
-            return self.read()
-        elif cmd == "list":
-            return self.list()
-        elif cmd == "roots":
-            return self.roots()
-        elif cmd == "labels":
-            return self.labels()
-        elif cmd == "tokens":
-            return self.tokens()
-        elif cmd == "debug":
-            return self.debug()
-        elif cmd == "help" or cmd == "?":
-            return self.help()
+        self.do_cmd(cmd)
+
+    def do_cmd(self, cmd):
+        print(f"do_cmd: {cmd}")
+        callme = self.commands.get(cmd)
+        if callme is None:
+            print(f"not sure what {cmd} means")
+        else:
+            callme()
 
     def debug(self):
         if self._debug:
@@ -72,13 +86,8 @@ class Repl(object):
 
     def help(self):
         print("\nHelp:")
-        print("   read")
-        print("   list")
-        print("   roots")
-        print("   labels")
-        print("   tokens")
-        print("   debug")
-        print("   quit")
+        for k,v in self.commands.items():
+            print(f"   {k}")
         return True
 
     def read(self):
