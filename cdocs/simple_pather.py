@@ -54,8 +54,9 @@ class SimplePather(Pather):
         path = os.path.join(root, path)
         apath = path
         logging.info(f"SimplePather.get_full_file_path_for_root: joined root: {root} with path to get: {apath}")
-        #logging.info(f"SimplePather.get_full_file_path_for_root: apath: {apath}")
-        if filename is None and path.find(".") == -1:
+        i = path.find(".")
+        logging.info(f"SimplePather.get_full_file_path_for_root: index of '.': {i}")
+        if filename is None and i <= len(root):
             logging.info(f"SimplePather.get_full_file_path_for_root: filename is None and no '.'")
             apath = self._find_path(apath)
         elif filename is None:

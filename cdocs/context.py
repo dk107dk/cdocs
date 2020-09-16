@@ -76,7 +76,9 @@ class Context(ContextualDocs, MultiContextDocs):
         else:
             filetype = self.get_filetype(path)
         logging.info(f"Context.filter_root_names_for_path: filetype: {filetype}")
-        aroots = self.metadata.accepted_by.get(filetype)
+        ab = self.metadata.accepted_by
+        logging.info(f"Context.filter_root_names_for_path: ab: {ab}")
+        aroots = ab.get(filetype)
         if aroots is None:
             aroots = []
         logging.info(f"Context.filter_root_names_for_path: found {aroots} for filetype. filtering roots using that list.")
