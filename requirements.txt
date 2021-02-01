@@ -1,4 +1,4 @@
 nose==1.3.3
-jinja2==2.11.2
+jinja2==2.11.3
 pypinfo
 inflect==4.1.0
