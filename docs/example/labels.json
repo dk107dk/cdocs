@@ -1,0 +1,7 @@
+{
+"docs":"The docs section holds named directories that are the roots Cdocs searches",
+"accepts":"The accepts section indicates the type of files that are accepted by the root. A root can 'accept' cdocs and use the format 'html' or 'xml', etc. In the future, accepts will likey accept 'binary' to indicate any binary file type.",
+"formats":"The formats section identifies the formats of documents in each root. Formats indicate the extensions of physical files that are used by Cdocs to build internal FilePaths.",
+"defaults":"The defaults section has several default values: a not found doc, a default extension, and a list of roots that do not allow plus concats across roots",
+"filenames": "The filenames section gives the names of the tokens and labels Json files, and also the hashmark and plus characters to use to name sub docs and separate plus-concat doc names"
+}

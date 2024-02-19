@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "cdocs"
+version = "0.1.0"
+description = ""
+authors = ["David Kershaw <dk107dk@hotmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+nose = "1.3.3"
+Jinja2 = "2.11.2"
+pypinfo = "^21.0.0"
+inflect = "4.1.0"
+markupsafe = "2.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.1"
+flake8 = "^7.0.0"
+black = "^24.2.0"
+mypy = "^1.8.0"
+pre-commit = "^3.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

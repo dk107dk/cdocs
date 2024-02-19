@@ -7,8 +7,8 @@ import os
 import logging
 from typing import Optional
 
-class Repl(object):
 
+class Repl(object):
     def __init__(self):
         self._config = None
         self._metadata = None
@@ -16,13 +16,14 @@ class Repl(object):
         self._continue = True
         self._debug = False
         self._commands = {}
-        self._logger = logging.getLogger('')
+        self._logger = logging.getLogger("")
         self._add_commands()
 
     def _add_commands(self):
         self.commands["quit"] = self.quit
         self.commands["read"] = self.read
         self.commands["list"] = self.list
+        self.commands["below"] = self.below
         self.commands["roots"] = self.roots
         self.commands["labels"] = self.labels
         self.commands["tokens"] = self.tokens
@@ -39,20 +40,19 @@ class Repl(object):
         self._commands = adict
 
     def ask_debug(self):
-        d = input("want to debug during load? (y/n) ")
-        if (d=='y'):
+        d = self._input("want to debug during load? (y/n) ")
+        if d == "y":
             self.debug()
 
     def ask_config(self):
-        d = input("want to use your own config? (y/n) ")
-        if (d=='y'):
-            return input("what path? ")
+        d = self._input("want to use your own config? (y/n) ")
+        if d == "y":
+            return self._input("what path? ")
         return None
 
-    def setup(self, configpath:Optional[str]=None, askdebug:Optional[bool]=True):
+    def setup(self, configpath: Optional[str] = None, askdebug: Optional[bool] = True):
         self.ask_debug()
         configpath = self.ask_config()
-        metadata = None
         self._config = SimpleConfig(configpath)
         self._metadata = ContextMetadata(self._config)
         self._context = Context(self._metadata)
@@ -63,7 +63,7 @@ class Repl(object):
             self._one_loop()
 
     def _one_loop(self) -> bool:
-        cmd = input("cmd: ")
+        cmd = self._input("cmd: ")
         self.do_cmd(cmd)
 
     def do_cmd(self, cmd):
@@ -86,13 +86,13 @@ class Repl(object):
 
     def help(self):
         print("\nHelp:")
-        for k,v in self.commands.items():
+        for k, v in self.commands.items():
             print(f"   {k}")
         return True
 
     def read(self):
         roots = self._get_roots()
-        docpath = input("docpath: ")
+        docpath = self._input("docpath: ")
         doc = ""
         try:
             if len(roots) >= 1:
@@ -107,7 +107,7 @@ class Repl(object):
 
     def labels(self):
         roots = self._get_roots()
-        docpath = input("docpath: ")
+        docpath = self._input("docpath: ")
         labels = ""
         try:
             if len(roots) >= 1:
@@ -122,35 +122,50 @@ class Repl(object):
 
     def tokens(self):
         roots = self._get_roots()
-        docpath = input("docpath: ")
+        docpath = self._input("docpath: ")
         labels = ""
         try:
             if len(roots) >= 1:
                 labels = self._context.get_tokens_from_roots(roots, docpath)
+                print("\nlabels: ")
+                print(f"{labels}")
             else:
                 tokens = self._context.get_tokens(docpath)
-            print("\ntokens: ")
-            print(f"{tokens}")
+                print("\ntokens: ")
+                print(f"{tokens}")
         except BadDocPath as e:
             print(f"Error: {e}")
         return True
 
     def _get_roots(self):
-        roots = input("which roots (Csv or return for all): ")
-        print("roots are: " + roots)
+        roots = self._input("which roots (comma separated or return for all): ")
+        # print("roots are: " + roots)
         roots = [] if roots == "" else roots.split(",")
         print(f"roots are: {roots}")
         return roots
 
     def list(self):
         roots = self._get_roots()
-        docpath = input("docpath: ")
+        docpath = self._input("docpath: ")
         docs = []
         if len(roots) >= 1:
             docs = self._context.list_docs_from_roots(roots, docpath)
         else:
             docs = self._context.list_docs(docpath)
         print("\ndocs: ")
+        for doc in docs:
+            print(f"   {doc}")
+        return True
+
+    def below(self):
+        roots = self._get_roots()
+        docpath = self._input("docpath: ")
+        docs = []
+        if len(roots) >= 1:
+            docs = self._context.list_next_layer_from_roots(roots, docpath)
+        else:
+            docs = self._context.list_next_layer(docpath)
+        print("\nnext layer: ")
         for doc in docs:
             print(f"   {doc}")
         return True
@@ -166,10 +181,15 @@ class Repl(object):
         self._continue = False
         return True
 
+    def _input(self, prompt: str) -> str:
+        try:
+            response = input(prompt)
+            return response.strip()
+        except KeyboardInterrupt:
+            return "quit"
+
 
 if __name__ == "__main__":
     repl = Repl()
     repl.setup()
     repl.loop()
-
-
