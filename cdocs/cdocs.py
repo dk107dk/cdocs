@@ -219,16 +219,17 @@ class Cdocs(ContextualDocs, Physical, Changer):
 
     def get_last_change(self) -> datetime:
         if self.track_last_change:
-            if self._last_change is None:
-                lcf = self._get_last_change_file_path()
-                if os.path.exists(lcf):
-                    last = None
-                    with (open(lcf, "r")) as lc:
-                        last = lc.read()
-                    self._last_change = datetime.fromtimestamp(float(last))
-                else:
-                    self.set_last_change()
+            lcf = self._get_last_change_file_path()
+            if os.path.exists(lcf):
+                last = None
+                with (open(lcf, "r")) as lc:
+                    last = lc.read()
+                self._last_change = datetime.fromtimestamp(float(last))
+            else:
+                self.set_last_change()
             return self._last_change
+        else:
+            return None
 
     def _get_last_change_file_path(self):
         if self.track_last_change:
@@ -246,10 +247,12 @@ class Cdocs(ContextualDocs, Physical, Changer):
             logging.info("Cdocs._get_last_change_file_path: ! self.track_last_change")
             return None
 
-    def set_last_change(self) -> None:
-        if self.track_last_change:
-            self._last_change = datetime.now()
-            self._write_last_change()
+    def set_last_change(self) -> datetime:
+        if not self.track_last_change:
+            self.track_last_change = True
+        self._last_change = datetime.now()
+        self._write_last_change()
+        return self._last_change
 
     def _write_last_change(self):
         if self.track_last_change:
@@ -261,7 +264,7 @@ class Cdocs(ContextualDocs, Physical, Changer):
                 try:
                     lc.write(str(seconds))
                 except Exception as e:
-                    logging.warning(
+                    logging.error(
                         f"cdocs._write_last_change: cannot write last change. refusing to crash.  {e}"
                     )
 

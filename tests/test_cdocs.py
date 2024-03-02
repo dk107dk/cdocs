@@ -2,6 +2,7 @@ from cdocs.cdocs import Cdocs, DocNotFoundException, BadDocPath
 import unittest
 import os
 import logging
+from time import sleep
 
 PATH: str = "/Users/davidkershaw/dev/cdocs/docs/example"
 PATH2: str = "/Users/davidkershaw/dev/cdocs/docs/internal"

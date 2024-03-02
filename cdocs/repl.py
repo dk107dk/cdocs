@@ -19,6 +19,9 @@ class Repl(object):
         self._logger = logging.getLogger("")
         self._add_commands()
 
+    def _add_command(self, name, function):
+        self.commands[name] = function
+
     def _add_commands(self):
         self.commands["quit"] = self.quit
         self.commands["read"] = self.read
@@ -123,12 +126,12 @@ class Repl(object):
     def tokens(self):
         roots = self._get_roots()
         docpath = self._input("docpath: ")
-        labels = ""
+        # labels = ""
         try:
             if len(roots) >= 1:
-                labels = self._context.get_tokens_from_roots(roots, docpath)
-                print("\nlabels: ")
-                print(f"{labels}")
+                tokens = self._context.get_tokens_from_roots(roots, docpath)
+                print("\ntokens: ")
+                print(f"{tokens}")
             else:
                 tokens = self._context.get_tokens(docpath)
                 print("\ntokens: ")
