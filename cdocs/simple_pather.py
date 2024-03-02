@@ -7,7 +7,7 @@ from typing import Optional
 
 
 class SimplePather(Pather):
-    def __init__(self, metadata, cdocs):  # docspath:FilePath, config:FilePath=None):
+    def __init__(self, metadata, cdocs):
         logging.info(
             f"SimplePather.__init__: starting with metadata: {metadata} and cdocs: {cdocs}"
         )

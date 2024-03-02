@@ -204,7 +204,7 @@ class Repl(object):
     def _input(self, prompt: str) -> str:
         try:
             response = input(f"{prompt}\033[93m")
-            print("\033[0m ")
+            sys.stdout.write("\033[0m")
             return response.strip()
         except KeyboardInterrupt:
             return "quit"
