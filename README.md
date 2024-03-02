@@ -1,7 +1,7 @@
 # Cdocs
 ## A super simple contextual help library.
 
-**<a href='https://pypi.org/project/cdocs/'>Cdocs</a>** is a <a href='https://pypi.org/project/cdocs/'>Python library</a> that is intended to help manage files for use in <a href='https://en.wikipedia.org/wiki/Context-sensitive_help'>context sensitive help</a> and <a href='https://en.wikipedia.org/wiki/Internationalization_and_localization'>I18n</a>. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
+**<a href='https://pypi.org/project/cdocs/'>Cdocs</a>** is a Python library that is intended to help manage files for use in <a href='https://en.wikipedia.org/wiki/Context-sensitive_help'>context sensitive help</a> and <a href='https://en.wikipedia.org/wiki/Internationalization_and_localization'>I18n</a>. The library knows how to find docs given a path called a docpath. Docpaths should mirror a logical or physical structure of the application. This way docs are easy find and map cleanly to the way the app works.
 
 <img width="75%" height="75%" src="https://raw.githubusercontent.com/dk107dk/cdocs/master/resources/images/docpath.png"/>
 

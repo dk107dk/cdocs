@@ -63,6 +63,18 @@ class CdocsTests(unittest.TestCase):
             msg="must include 'my app name: you should see: my app's name is fruit'",
         )
 
+    def test_get_doc2(self):
+        logging.info("CdocsTests.test_get_doc2")
+        docpath = "/app/home/teams/todos/assignee#new_assignee"
+        cdocs = Cdocs(PATH)
+        txt = cdocs.get_doc(docpath)
+        self.assertIsNotNone(txt, msg=f"doc at {docpath} must not be none")
+        logging.info(f"test_get_doc2: doing get_docs. the doc txt is: {txt}")
+        point = txt.find("new assignee")
+        self.assertNotEqual(
+            -1, point, msg=f"txt: {txt} must include 'assignee in company starstruck!'"
+        )
+
     def test_get_doc_not_found(self):
         logging.info("CdocsTests.test_get_doc_not_found")
         docpath = "/app/home/teams/todos/assignee/fish"
@@ -89,6 +101,7 @@ class CdocsTests(unittest.TestCase):
         logging.info("CdocsTests.test_get_plus_paths")
         docpath = "/app/home/teams/todos/assignee+edit_assignee"
         cdocs = Cdocs(PATH)
+        logging.info(f"test_get_plus_paths: docpath {docpath}")
         paths = cdocs._get_plus_paths(docpath)
         logging.info(f"test_get_plus_paths: plus paths: {paths}")
         self.assertIn(
@@ -97,16 +110,18 @@ class CdocsTests(unittest.TestCase):
             msg="1. plus paths must include edit_assignee",
         )
         docpath = "/app/home/teams/todos/assignee#new_assignee+edit_assignee"
+        logging.info(f"test_get_plus_paths: docpath {docpath}")
         paths = cdocs._get_plus_paths(docpath)
-        logging.info(f"plus paths: {paths}")
+        logging.info(f"test_get_plus_paths: plus paths: {paths}")
         self.assertIn(
             "/app/home/teams/todos/assignee#edit_assignee",
             paths,
             msg="2. plus paths must include edit_assignee",
         )
         docpath = "/app/home/teams/todos/assignee+new_assignee+edit_assignee"
+        logging.info(f"test_get_plus_paths: docpath {docpath}")
         paths = cdocs._get_plus_paths(docpath)
-        logging.info(f"plus paths: {paths}")
+        logging.info(f"test_get_plus_paths: plus paths: {paths}")
         self.assertIn(
             "/app/home/teams/todos/assignee#edit_assignee",
             paths,
@@ -248,6 +263,7 @@ class CdocsTests(unittest.TestCase):
         logging.info("CdocsTests.test_get_full_file_path")
         docpath = "/app/home/teams/todos/assignee#new_assignee"
         cdocs = Cdocs(PATH)
+        logging.info(f"test_get_full_file_path: docpath: {docpath}")
         path = cdocs._pather.get_full_file_path(docpath)
         found = path.find("/assignee/new_assignee.xml")
         logging.info(f"test_get_full_file_path: found: {found}")

@@ -6,6 +6,7 @@ import unittest
 import os
 import logging
 from typing import Optional
+import sys
 
 
 class Repl(object):
@@ -18,6 +19,7 @@ class Repl(object):
         self._commands = {}
         self._logger = logging.getLogger("")
         self._add_commands()
+        self._last_roots = []
 
     def _add_command(self, name, function):
         self.commands[name] = function
@@ -32,6 +34,8 @@ class Repl(object):
         self.commands["tokens"] = self.tokens
         self.commands["debug"] = self.debug
         self.commands["help"] = self.help
+        self.commands["reload"] = self.reload
+        self.commands["config"] = self.config
         self.commands["?"] = self.help
 
     @property
@@ -54,8 +58,10 @@ class Repl(object):
         return None
 
     def setup(self, configpath: Optional[str] = None, askdebug: Optional[bool] = True):
-        self.ask_debug()
-        configpath = self.ask_config()
+        if askdebug:
+            self.ask_debug()
+        if configpath is None:
+            configpath = self.ask_config()
         self._config = SimpleConfig(configpath)
         self._metadata = ContextMetadata(self._config)
         self._context = Context(self._metadata)
@@ -66,16 +72,19 @@ class Repl(object):
             self._one_loop()
 
     def _one_loop(self) -> bool:
-        cmd = self._input("cmd: ")
+        cmd = self._input(">> ")
         self.do_cmd(cmd)
 
     def do_cmd(self, cmd):
-        print(f"do_cmd: {cmd}")
         callme = self.commands.get(cmd)
         if callme is None:
-            print(f"not sure what {cmd} means")
+            print("")
         else:
             callme()
+
+    def config(self):
+        cfg = f"{os.getcwd()}{os.sep}{self._metadata.config.get_config_path()}"
+        self._response(cfg)
 
     def debug(self):
         if self._debug:
@@ -90,8 +99,11 @@ class Repl(object):
     def help(self):
         print("\nHelp:")
         for k, v in self.commands.items():
-            print(f"   {k}")
+            self._response(k)
         return True
+
+    def reload(self):
+        self.setup(askdebug=False, configpath=self._metadata.config.get_config_path())
 
     def read(self):
         roots = self._get_roots()
@@ -102,8 +114,8 @@ class Repl(object):
                 doc = self._context.get_doc_from_roots(roots, docpath)
             else:
                 doc = self._context.get_doc(docpath)
-            print("\ndoc: ")
-            print(f"{doc}")
+            self._response(doc)
+            print("\n")
         except BadDocPath as e:
             print(f"Error: {e}")
         return True
@@ -117,8 +129,7 @@ class Repl(object):
                 labels = self._context.get_labels_from_roots(roots, docpath)
             else:
                 labels = self._context.get_labels(docpath)
-            print("\nlabels: ")
-            print(f"{labels}")
+            self._response(labels)
         except BadDocPath as e:
             print(f"Error: {e}")
         return True
@@ -126,24 +137,31 @@ class Repl(object):
     def tokens(self):
         roots = self._get_roots()
         docpath = self._input("docpath: ")
+        tokens = ""
         try:
             if len(roots) >= 1:
                 tokens = self._context.get_tokens_from_roots(roots, docpath)
-                print("\ntokens: ")
-                print(f"{tokens}")
             else:
                 tokens = self._context.get_tokens(docpath)
-                print("\ntokens: ")
-                print(f"{tokens}")
+            self._response(tokens)
         except BadDocPath as e:
             print(f"Error: {e}")
         return True
 
     def _get_roots(self):
-        roots = self._input("which roots (comma separated or return for all): ")
-        # print("roots are: " + roots)
-        roots = [] if roots == "" else roots.split(",")
-        print(f"roots are: {roots}")
+        pres = (
+            f"[return] for {self._last_roots} or " if len(self._last_roots) != 0 else ""
+        )
+        roots = self._input(f"which roots (csv or {pres}'all'): ")
+        if roots == "":
+            roots = self._last_roots
+        elif roots == "all":
+            roots = [root[0] for root in self._config.get_items("docs")]
+        else:
+            roots = roots.split(",")
+        self._last_roots = roots
+        for root in roots:
+            self._response(root)
         return roots
 
     def list(self):
@@ -154,9 +172,8 @@ class Repl(object):
             docs = self._context.list_docs_from_roots(roots, docpath)
         else:
             docs = self._context.list_docs(docpath)
-        print("\ndocs: ")
         for doc in docs:
-            print(f"   {doc}")
+            self._response(doc)
         return True
 
     def below(self):
@@ -167,25 +184,27 @@ class Repl(object):
             docs = self._context.list_next_layer_from_roots(roots, docpath)
         else:
             docs = self._context.list_next_layer(docpath)
-        print("\nnext layer: ")
         for doc in docs:
-            print(f"   {doc}")
+            self._response(doc)
         return True
 
     def roots(self):
         roots = self._config.get_items("docs")
-        print("\nroots:")
         for root in roots:
-            print(f"   {root}")
+            self._response(root)
         return True
 
     def quit(self):
         self._continue = False
         return True
 
+    def _response(self, text: str) -> None:
+        sys.stdout.write(f"\033[92m {text}\033[0m\n")
+
     def _input(self, prompt: str) -> str:
         try:
-            response = input(prompt)
+            response = input(f"{prompt}\033[93m")
+            print("\033[0m ")
             return response.strip()
         except KeyboardInterrupt:
             return "quit"
