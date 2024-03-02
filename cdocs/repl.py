@@ -126,7 +126,6 @@ class Repl(object):
     def tokens(self):
         roots = self._get_roots()
         docpath = self._input("docpath: ")
-        # labels = ""
         try:
             if len(roots) >= 1:
                 tokens = self._context.get_tokens_from_roots(roots, docpath)

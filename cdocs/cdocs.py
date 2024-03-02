@@ -54,6 +54,7 @@ class Cdocs(ContextualDocs, Physical, Changer):
         self._config = cfg
         self._context: MultiContextDocs = context
         self._docs_path: FilePath = docspath
+        print(f"get_matching_key_for_value: {docspath}")
         self._rootname = cfg.get_matching_key_for_value("docs", docspath)
         if self._rootname is None:
             raise ConfigException(f"Cdocs.__init__: no rootname for {docspath}")
