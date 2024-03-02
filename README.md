@@ -119,9 +119,7 @@ An SPA might use the endpoint to pull docs or labels for context sensitive help,
 ```
 
 
-### TODO:
-- Configure a transformer for default and #name docs. (And concat and compose?) E.g. to automatically transform xml > md, md > html, etc.
-- Think about if concat and compose docs should be transformed before being included in the other type. e.g. if /x/y/z/concat.txt included /x/compose.html then compose.html would be rendered before being concatenated.
+Cdocs is on Pypi <a href='https://pypi.org/project/cdocs/'>here</a>.
 
 
 
